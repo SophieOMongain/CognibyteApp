@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recap_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F1F5F7"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#B0CDE4"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/back_arrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_back_arrow"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CHANGE PROGRAMMING LANGUAGE"
+            android:textColor="#0D2C54"
+            android:textSize="16sp"
+            android:layout_marginStart="16dp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_lesson_recap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Lesson Recap"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:layout_marginTop="100dp"
+        android:backgroundTint="#0D2C54"
+        android:layout_gravity="center_horizontal"
+        android:padding="16dp" />
+
+    <Button
+        android:id="@+id/btn_quiz_recap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Quiz Recap"
+        android:textColor="#4A4A4A"
+        android:textSize="18sp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#D3D3D3"
+        android:layout_gravity="center_horizontal"
+        android:padding="16dp" />
+</LinearLayout>

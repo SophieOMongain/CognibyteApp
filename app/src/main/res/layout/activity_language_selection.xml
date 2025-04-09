@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center_horizontal"
+    android:background="@color/light_gray">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose your Language:"
+        android:textSize="24sp"
+        android:textColor="@color/primary_blue"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="sans-serif-medium" />
+
+    <EditText
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search Programming Languages"
+        android:padding="12dp"
+        android:textColor="@color/dark_gray"
+        android:textColorHint="@color/dark_gray"
+        android:backgroundTint="@color/secondary_blue"
+        android:drawableEnd="@android:drawable/ic_menu_search"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_edittext" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <Button
+            android:id="@+id/btn_java"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/java_icon"
+            android:text="Java"
+            android:background="@drawable/rounded_button"
+            android:layout_marginBottom="10dp"
+            android:padding="16dp"
+            android:gravity="start|center_vertical"
+            android:textColor="@color/primary_blue"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/btn_javascript"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/javascript_icon"
+            android:text="JavaScript"
+            android:background="@drawable/rounded_button"
+            android:layout_marginBottom="10dp"
+            android:padding="16dp"
+            android:gravity="start|center_vertical"
+            android:textColor="@color/primary_blue"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/btn_python"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/python_icon"
+            android:text="Python"
+            android:background="@drawable/rounded_button"
+            android:layout_marginBottom="10dp"
+            android:padding="16dp"
+            android:gravity="start|center_vertical"
+            android:textColor="@color/primary_blue"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/btn_html"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/html_icon"
+            android:text="HTML"
+            android:background="@drawable/rounded_button"
+            android:layout_marginBottom="10dp"
+            android:padding="16dp"
+            android:gravity="start|center_vertical"
+            android:textColor="@color/primary_blue"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+</LinearLayout>
+
+

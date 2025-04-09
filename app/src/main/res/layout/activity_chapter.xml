@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/light_gray">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:background="@color/secondary_blue"
+        android:padding="12dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/imgLanguageLogo"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="12dp"
+            android:src="@drawable/javascript_icon"/>
+
+        <TextView
+            android:id="@+id/tvLanguageName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="JavaScript"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:layout_marginStart="6dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="30dp">
+
+        <Button
+            android:id="@+id/btnChapter1"
+            android:layout_width="300dp"
+            android:layout_height="80dp"
+            android:text="Chapter 1"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/primary_blue"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/btnChapter2"
+            android:layout_width="300dp"
+            android:layout_height="80dp"
+            android:text="Chapter 2"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/primary_blue"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginTop="25dp"/>
+
+        <Button
+            android:id="@+id/btnChapter3"
+            android:layout_width="300dp"
+            android:layout_height="80dp"
+            android:text="Chapter 3"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/primary_blue"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginTop="25dp"/>
+
+        <Button
+            android:id="@+id/btnChapter4"
+            android:layout_width="300dp"
+            android:layout_height="80dp"
+            android:text="Chapter 4"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/primary_blue"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginTop="25dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/secondary_blue"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/btnHome"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/home"
+            android:layout_marginEnd="40dp"/>
+
+        <ImageView
+            android:id="@+id/btncodeQuiz"
+            android:layout_width="54dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="40dp"
+            android:src="@drawable/code_icon2" />
+
+        <ImageView
+            android:id="@+id/btnStats"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/stats"
+            android:layout_marginEnd="40dp"/>
+
+        <ImageView
+            android:id="@+id/btnProfile"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/profile"
+            android:layout_marginEnd="40dp"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_gray">
+
+    <!-- Header Section with Back Button -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/secondary_blue"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/back"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LANGUAGE"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginStart="20dp"
+            android:textColor="@color/primary_blue"/>
+    </LinearLayout>
+
+    <!-- Change Program Language Button -->
+    <Button
+        android:id="@+id/btnChangeLanguage"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:text="CHANGE PROGRAM LANGUAGE"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:background="@drawable/rounded_button"
+        android:paddingVertical="14dp"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Add Program Language Button -->
+    <Button
+        android:id="@+id/btnAddLanguage"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:text="ADD PROGRAM LANGUAGE"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:background="@drawable/rounded_button"
+        android:paddingVertical="14dp"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/btnChangeLanguage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Save Changes Button -->
+    <Button
+        android:id="@+id/btnSaveChanges"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:text="SAVE CHANGES"
+        android:textSize="18sp"
+        android:textColor="@color/primary_blue"
+        android:background="@drawable/rounded_button_disabled"
+        android:paddingVertical="14dp"
+        android:gravity="center"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

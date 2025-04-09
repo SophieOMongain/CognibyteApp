@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_admin"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+
+    <LinearLayout
+        android:id="@+id/topHeader"
+        android:layout_width="421dp"
+        android:layout_height="100dp"
+        android:background="@color/secondary_blue"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Admin Section"
+            android:textColor="@color/primary_blue"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/btnGenerateQuizzes"
+        style="@style/NoTintButton"
+        android:layout_width="260dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/rounded_button_light"
+        android:text="Go To Quiz Section"
+        android:textColor="@color/primary_blue"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnGenerateLessons" />
+
+    <Button
+        android:id="@+id/btnGenerateLessons"
+        style="@style/NoTintButton"
+        android:layout_width="260dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="116dp"
+        android:background="@drawable/rounded_button_light"
+        android:text="Go To Chapter Section"
+        android:textColor="@color/primary_blue"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topHeader" />
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="324dp"
+        android:layout_height="91dp"
+        android:layout_marginTop="244dp"
+        android:background="@drawable/rounded_button_dark"
+        android:text="RETURN TO LOGIN"
+        android:textColor="@color/light_gray"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnGenerateQuizzes" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

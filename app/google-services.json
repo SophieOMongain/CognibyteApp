@@ -1,0 +1,30 @@
+{
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:679386830112:android:1579b3bacdae7b45a83345",
+        "android_client_info": {
+          "package_name": "com.example.cognibyte"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC27HVnHIS1cWZvrkHE4P3ST-UgotatBS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1",
+  "project_info": {
+    "project_number": "679386830112",
+    "firebase_url": "https://cognibyte-950ed-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "cognibyte-950ed",
+    "storage_bucket": "cognibyte-950ed.appspot.com"
+  }
+}

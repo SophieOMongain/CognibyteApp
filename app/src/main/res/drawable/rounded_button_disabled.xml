@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Grey background for the disabled button -->
+    <solid android:color="@color/hint_text_gray" />
+
+    <!-- Rounded corners -->
+    <corners android:radius="24dp" />
+
+    <!-- Optional: Add some padding inside the button -->
+    <padding
+        android:left="16dp"
+        android:top="8dp"
+        android:right="16dp"
+        android:bottom="8dp" />
+</shape>

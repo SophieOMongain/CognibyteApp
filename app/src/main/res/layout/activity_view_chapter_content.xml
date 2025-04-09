@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_view_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Admin.ViewChapterContentActivity">
+
+    <!-- Header matching LanguageActivity's header -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/secondary_blue"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/back"
+            android:contentDescription="@string/back" />
+
+        <TextView
+            android:id="@+id/tvHeaderTitle"
+            android:layout_width="299dp"
+            android:layout_height="51dp"
+            android:gravity="center"
+            android:text="View Content"
+            android:textColor="@color/primary_blue"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </LinearLayout>
+
+    <!-- Spinner for Language selection -->
+    <Spinner
+        android:id="@+id/spinnerLanguage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/light_gray"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- EditText for Chapter Number -->
+    <EditText
+        android:id="@+id/etChapterNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Chapter Number (1-10)"
+        android:inputType="number"
+        android:background="@color/light_gray"
+        app:layout_constraintTop_toBottomOf="@id/spinnerLanguage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- EditText for Lesson Number -->
+    <EditText
+        android:id="@+id/etLessonNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Lesson Number (1-10)"
+        android:inputType="number"
+        android:background="@color/light_gray"
+        app:layout_constraintTop_toBottomOf="@id/etChapterNumber"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Select Button to load content from Firestore -->
+
+    <Button
+        android:id="@+id/btnSelect"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primary_blue"
+        android:text="Select"
+        android:textColor="@color/secondary_blue"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etLessonNumber" />
+
+    <EditText
+        android:id="@+id/LastEdited"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/light_gray"
+        android:enabled="false"
+        android:hint="Last Edited"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSelect" />
+
+    <!-- Lesson Content Display (initially disabled) -->
+
+    <!-- Layout for Edit and Save buttons -->
+
+    <EditText
+        android:id="@+id/etLessonContent"
+        android:layout_width="418dp"
+        android:layout_height="357dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/light_gray"
+        android:enabled="false"
+        android:hint="Lesson Content"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@id/layoutEditSave"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etLastEdited"
+        app:layout_constraintVertical_bias="0.379" />
+
+    <LinearLayout
+        android:id="@+id/layoutEditSave"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:textStyle="bold"
+            android:backgroundTint="@color/primary_blue"
+            android:textColor="@color/secondary_blue" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:textStyle="bold"
+            android:backgroundTint="@color/primary_blue"
+            android:textColor="@color/secondary_blue"
+            android:layout_marginStart="16dp"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_blue">#003366</color>
+    <color name="secondary_blue">#b3d9ff</color>
+    <color name="light_gray">#f0f0f0</color>
+    <color name="background_light_blue">#e6f2ff</color>
+    <color name="dark_gray">#666666</color>
+    <color name="white">#FFFFFF</color>
+    <color name="hint_text_gray">#9e9e9e</color>
+    <color name="button_pressed_blue">#80b3d9ff</color>
+</resources>

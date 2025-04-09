@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.Cognibyte" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary_blue</item>
+        <item name="colorPrimaryVariant">@color/primary_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <item name="colorSecondary">@color/secondary_blue</item>
+        <item name="colorSecondaryVariant">@color/secondary_blue</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <item name="android:colorBackground">@color/light_gray</item>
+        <item name="android:textColor">@color/dark_gray</item>
+        <item name="android:colorButtonNormal">@color/secondary_blue</item>
+
+        <item name="colorButtonNormal">@color/secondary_blue</item>
+        <item name="android:textColorPrimary">@color/primary_blue</item>
+        <item name="android:textColorSecondary">@color/dark_gray</item>
+
+        <item name="android:statusBarColor" tools:targetApi="l">@color/primary_blue</item>
+        <item name="android:navigationBarColor">@color/primary_blue</item>
+
+        <item name="android:colorControlHighlight">@color/secondary_blue</item>
+
+        <item name="colorOnSurface">@color/dark_gray</item>
+        <item name="android:disabledAlpha">0.5</item>
+    </style>
+
+    <style name="NoTintButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@null</item>
+        <item name="backgroundTint">@null</item>
+    </style>
+
+</resources>

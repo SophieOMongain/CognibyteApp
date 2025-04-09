@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_generate_quiz"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Admin.GenerateQuizActivity">
+
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/secondary_blue"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/back"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:id="@+id/tvHeaderTitle"
+            android:layout_width="299dp"
+            android:layout_height="51dp"
+            android:gravity="center"
+            android:text="Generate Quiz Content"
+            android:textColor="@color/primary_blue"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </LinearLayout>
+
+    <Spinner
+        android:id="@+id/spinnerLanguage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/light_gray"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- Skill Level Spinner -->
+    <Spinner
+        android:id="@+id/spinnerSkillLevel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/light_gray"
+        app:layout_constraintTop_toBottomOf="@id/spinnerLanguage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- EditText for Chapter Number -->
+    <EditText
+        android:id="@+id/etChapterNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint=" Chapter Number (1-10)"
+        android:inputType="number"
+        android:background="@color/light_gray"
+        app:layout_constraintTop_toBottomOf="@id/spinnerSkillLevel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- EditText for Lesson Number -->
+    <EditText
+        android:id="@+id/etLessonNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint=" Lesson Number (1-10)"
+        android:inputType="number"
+        android:background="@color/light_gray"
+        app:layout_constraintTop_toBottomOf="@id/etChapterNumber"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+
+    <Button
+        android:id="@+id/btnGenerateContent"
+        android:layout_width="352dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="300dp"
+        android:backgroundTint="@color/primary_blue"
+        android:text="Generate Content"
+        android:textColor="@color/secondary_blue"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etLessonNumber" />
+
+    <Button
+        android:id="@+id/btnViewContent"
+        android:layout_width="352dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/secondary_blue"
+        android:text="View Content"
+        android:textColor="@color/primary_blue"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnGenerateContent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
