@@ -49,21 +49,43 @@ public class OpenAIClient {
                 "Respond with a JSON object having keys 'title' and 'content'.";
         sendRequest(prompt, 700, new CompletionCallback() {
             @Override
-            public void onSuccess(String result) {
+            public void onSuccess(String lessonResponse) {
                 try {
-                    Log.d("OpenAIClient", "Raw response: " + result);
-                    JSONObject jsonResult = new JSONObject(result);
-                    String title = jsonResult.getString("title");
-                    String content = jsonResult.getString("content");
-                    storeLessonInFirestore(chapterNumber, lessonNumber, language, title, "Summary of " + title, content);
-                    callback.onSuccess("Title: " + title + "\n\nContent:\n" + content);
+                    Log.d(TAG, "Raw lesson response: " + lessonResponse);
+                    JSONObject lessonJson = new JSONObject(lessonResponse);
+                    String title = lessonJson.getString("title");
+                    String content = lessonJson.getString("content");
+
+                    String recapPrompt = "Summarize the following lesson in 3 sentences for beginner " + language + " learners:\n\n" + content;
+                    sendRequest(recapPrompt, 150, new CompletionCallback() {
+                        @Override
+                        public void onSuccess(String recap) {
+                            storeLessonInFirestore(
+                                    chapterNumber,
+                                    lessonNumber,
+                                    language,
+                                    title,
+                                    "Summary of " + title,
+                                    content,
+                                    recap
+                            );
+                            callback.onSuccess("Lesson and recap saved.\n\nTitle: " + title + "\n\nRecap:\n" + recap);
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            callback.onError("Failed to generate recap: " + error);
+                        }
+                    });
+
                 } catch (Exception e) {
-                    callback.onError("Error parsing lesson JSON: " + e.getMessage() + "\nRaw result: " + result);
+                    callback.onError("Error parsing lesson JSON: " + e.getMessage() + "\nRaw lesson response: " + lessonResponse);
                 }
             }
+
             @Override
             public void onError(String error) {
-                callback.onError(error);
+                callback.onError("Failed to generate lesson: " + error);
             }
         });
     }
@@ -208,13 +230,14 @@ public class OpenAIClient {
         });
     }
 
-    private static void storeLessonInFirestore(int chapterNumber, int lessonNumber, String language, String title, String summary, String content) {
+    private static void storeLessonInFirestore(int chapterNumber, int lessonNumber, String language, String title, String summary, String content, String recap) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         Map<String, Object> chapterData = new HashMap<>();
         chapterData.put("chapterNumber", chapterNumber);
         chapterData.put("lessonNumber", lessonNumber);
         chapterData.put("lessonTitle", title);
         chapterData.put("lessonContent", content);
+        chapterData.put("lessonRecap", recap);
         chapterData.put("summary", summary);
         chapterData.put("lastEdit", com.google.firebase.firestore.FieldValue.serverTimestamp());
 
@@ -230,22 +253,15 @@ public class OpenAIClient {
                                     DocumentSnapshot document = querySnapshot.getDocuments().get(0);
                                     String docId = document.getId();
                                     chapterData.put("chapterId", docId);
-                                    document.getReference().set(chapterData, SetOptions.merge())
-                                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Lesson updated successfully with ID: " + docId))
-                                            .addOnFailureListener(e -> Log.e(TAG, "Error updating lesson: " + e.getMessage()));
+                                    document.getReference().set(chapterData, SetOptions.merge());
                                 } else {
                                     DocumentReference docRef = parentDoc.collection("Chapters").document();
                                     String docId = docRef.getId();
                                     chapterData.put("chapterId", docId);
-                                    Log.d(TAG, "Storing new lesson at path: /ChapterContent/" + language + "/Chapters/" + docId);
-                                    docRef.set(chapterData, SetOptions.merge())
-                                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Lesson stored successfully with ID: " + docId))
-                                            .addOnFailureListener(e -> Log.e(TAG, "Error storing lesson: " + e.getMessage()));
+                                    docRef.set(chapterData, SetOptions.merge());
                                 }
-                            })
-                            .addOnFailureListener(e -> Log.e(TAG, "Error checking for existing lesson: " + e.getMessage()));
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Failed to create parent document: " + e.getMessage()));
+                            });
+                });
     }
 
     private static String extractJsonArray(String response) {

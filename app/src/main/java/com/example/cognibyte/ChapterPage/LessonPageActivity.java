@@ -6,9 +6,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.cognibyte.HomePage.HomeActivity;
 import com.example.cognibyte.Account.LoginActivity;
 import com.example.cognibyte.ChapterPage.Quiz.QuizActivity;
@@ -18,6 +16,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LessonPageActivity extends AppCompatActivity {
 
@@ -32,6 +35,7 @@ public class LessonPageActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
     private FirebaseAuth mAuth;
+    private static final String TAG = "LessonPageActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +85,6 @@ public class LessonPageActivity extends AppCompatActivity {
             finish();
         });
         btnReturnToLessons.setOnClickListener(v -> markLessonCompleted());
-
         btnStartQuiz.setOnClickListener(v -> {
             if (lessonContent == null || lessonContent.trim().isEmpty()) {
                 Toast.makeText(LessonPageActivity.this, "Cannot start quiz. Lesson content is missing.", Toast.LENGTH_LONG).show();
@@ -134,27 +137,19 @@ public class LessonPageActivity extends AppCompatActivity {
 
     private void markLessonCompleted() {
         String userId = mAuth.getCurrentUser().getUid();
-        String progressField = "Chapter" + chapterNumber + "_Lesson" + lessonNumber;
-        firestore.collection("LessonProgress")
+        String docId = "Chapter" + chapterNumber + "_Lesson" + lessonNumber;
+        Map<String, Object> progressData = new HashMap<>();
+        progressData.put("chapterNumber", chapterNumber);
+        progressData.put("lessonNumber", lessonNumber);
+        progressData.put("progress", true);
+        firestore.collection("UserProgress")
                 .document(userId)
-                .update(progressField, true)
+                .collection("Chapters")
+                .document(docId)
+                .set(progressData)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(LessonPageActivity.this, "Lesson marked as completed!", Toast.LENGTH_SHORT).show();
-                    if (lessonNumber == 5) {
-                        firestore.collection("Users")
-                                .document(userId)
-                                .update("Chapter" + chapterNumber, true)
-                                .addOnSuccessListener(aVoid2 -> {
-                                    Toast.makeText(LessonPageActivity.this, "Chapter " + chapterNumber + " marked as completed!", Toast.LENGTH_SHORT).show();
-                                    navigateBackToLessons();
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(LessonPageActivity.this, "Failed to update chapter progress: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    navigateBackToLessons();
-                                });
-                    } else {
-                        navigateBackToLessons();
-                    }
+                    navigateBackToLessons();
                 })
                 .addOnFailureListener(e -> Toast.makeText(LessonPageActivity.this, "Failed to update lesson progress: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }

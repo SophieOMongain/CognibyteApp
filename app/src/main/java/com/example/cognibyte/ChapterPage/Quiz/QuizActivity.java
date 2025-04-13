@@ -14,14 +14,16 @@ import com.example.cognibyte.ChapterPage.LessonActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.SetOptions;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import models.Question;
 import models.Quiz;
@@ -245,23 +247,45 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void completeLesson() {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String progressField = "Chapter" + chapterNumber + "_Lesson" + lessonNumber;
-        Map<String, Object> data = new HashMap<>();
-        data.put(progressField, true);
-        firestore.collection("LessonProgress")
-                .document(currentUserId)
-                .set(data, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> {
-                    Intent intent = new Intent(QuizActivity.this, LessonActivity.class);
-                    intent.putExtra("chapterNumber", chapterNumber);
-                    intent.putExtra("language", language);
-                    intent.putExtra("skillLevel", skillLevel);
-                    startActivity(intent);
-                    finish();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(QuizActivity.this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String userId = currentUser.getUid();
+        firestore.collection("ChapterContent")
+                .document(language)
+                .collection("Chapters")
+                .whereEqualTo("chapterNumber", chapterNumber)
+                .whereEqualTo("lessonNumber", lessonNumber)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        DocumentSnapshot chapterDoc = querySnapshot.getDocuments().get(0);
+                        String chapterId = chapterDoc.getId();
+                        Map<String, Object> progressData = new HashMap<>();
+                        progressData.put("chapterNumber", chapterNumber);
+                        progressData.put("lessonNumber", lessonNumber);
+                        progressData.put("progress", true);
+
+                        firestore.collection("UserProgress")
+                                .document(userId)
+                                .collection("Chapters")
+                                .document(chapterId)
+                                .set(progressData)
+                                .addOnSuccessListener(aVoid -> {
+                                    Intent intent = new Intent(QuizActivity.this, LessonActivity.class);
+                                    intent.putExtra("chapterNumber", chapterNumber);
+                                    intent.putExtra("language", language);
+                                    intent.putExtra("skillLevel", skillLevel);
+                                    startActivity(intent);
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(QuizActivity.this, "Failed to update lesson progress: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    } else {
+                        Toast.makeText(QuizActivity.this, "Chapter data not found. Please contact the admin.", Toast.LENGTH_SHORT).show();
+                    }
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(QuizActivity.this, "Failed to update lesson progress: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> Toast.makeText(QuizActivity.this, "Error fetching chapter data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cognibyte.HomePage.Language.LanguageActivity;
+import com.example.cognibyte.HomePage.Recap.RecapActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -89,7 +90,8 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.recap_section).setOnClickListener(v -> {
-            Toast.makeText(HomeActivity.this, "Recap clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(HomeActivity.this, RecapActivity.class);
+            startActivity(intent);
         });
     }
 }

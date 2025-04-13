@@ -8,16 +8,13 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.cognibyte.Adapter.CodeQuizAdapter;
 import com.example.cognibyte.Client.JDoodleClient;
 import com.example.cognibyte.Client.OpenAIClient;
 import com.example.cognibyte.R;
-
 import java.util.ArrayList;
 import java.util.List;
 

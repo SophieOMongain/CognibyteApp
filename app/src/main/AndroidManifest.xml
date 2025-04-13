@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
 
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -104,25 +103,12 @@
             android:name=".Admin.AdminActivity"
             android:exported="true" />
 
-        <!-- select generateLesson Activity -->
-        <activity
-            android:name=".Admin.GenerateLessonActivity"
-            android:exported="true" />
 
         <!-- select GenerateQuiz Activity -->
         <activity
             android:name=".Admin.GenerateQuizActivity"
             android:exported="true" />
 
-        <!-- select GenerateChapterQuiz Activity -->
-        <activity
-            android:name=".Admin.GenerateChapterQuizActivity"
-            android:exported="true" />
-
-        <!-- select Generate language quiz Activity -->
-        <activity
-            android:name=".Admin.GenerateLanguageQuizActivity"
-            android:exported="true" />
 
         <!-- select Generate Chapters Activity -->
         <activity
@@ -144,6 +130,10 @@
             android:exported="true" />
 
 
+        <!--  Language Activity -->
+        <activity
+            android:name=".HomePage.Language.LanguageActivity"
+            android:exported="true" />
 
         <!-- Add Language Activity -->
         <activity
@@ -164,6 +154,20 @@
             android:name=".ChapterPage.LessonActivity"
             android:exported="true" />
 
+        <!--  Recap Page -->
+        <activity
+            android:name=".HomePage.Recap.RecapActivity"
+            android:exported="true" />
+
+        <!--  Recap Lesson Page -->
+        <activity
+            android:name=".HomePage.Recap.LessonRecapActivity"
+            android:exported="true" />
+
+        <!--  Recap Quiz Page -->
+        <activity
+            android:name=".HomePage.Recap.QuizRecapActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

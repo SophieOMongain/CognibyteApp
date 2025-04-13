@@ -9,7 +9,7 @@ public class Question implements Serializable {
     private String question;
     private List<String> options;
     private String answer;
-    private String explanation; // New variable for the explanation
+    private String explanation;
 
     public Question() {}
 

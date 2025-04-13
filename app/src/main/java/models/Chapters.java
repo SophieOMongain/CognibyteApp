@@ -11,18 +11,20 @@ public class Chapters {
     private int lessonNumber;
     private String lessonTitle;
     private String lessonContent;
+    private String lessonRecap;
     private Timestamp lastEdit;
 
     public Chapters() {
     }
 
-    public Chapters(String chapterId, int chapterNumber, String chapterKeyWord, int lessonNumber, String lessonTitle, String lessonContent, Timestamp lastEdit) {
+    public Chapters(String chapterId, int chapterNumber, String chapterKeyWord, int lessonNumber, String lessonTitle, String lessonContent, String lessonRecap, Timestamp lastEdit) {
         this.chapterId = chapterId;
         this.chapterNumber = chapterNumber;
         this.chapterKeyWord = chapterKeyWord;
         this.lessonNumber = lessonNumber;
         this.lessonTitle = lessonTitle;
         this.lessonContent = lessonContent;
+        this.lessonRecap = lessonRecap;
         this.lastEdit = lastEdit;
     }
 
@@ -75,6 +77,14 @@ public class Chapters {
         this.lessonContent = lessonContent;
     }
 
+    public String getLessonRecap() {
+        return lessonRecap;
+    }
+
+    public void setLessonRecap(String lessonRecap) {
+        this.lessonRecap = lessonRecap;
+    }
+
     public Timestamp getLastEdit() {
         return lastEdit;
     }
@@ -92,6 +102,7 @@ public class Chapters {
                 ", lessonNumber=" + lessonNumber +
                 ", lessonTitle='" + lessonTitle + '\'' +
                 ", lessonContent='" + lessonContent + '\'' +
+                ", lessonRecap='" + lessonRecap + '\'' +
                 ", lastEdit=" + lastEdit +
                 '}';
     }
