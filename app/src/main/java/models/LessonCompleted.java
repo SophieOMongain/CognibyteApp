@@ -1,11 +1,11 @@
 package models;
 
 public class LessonCompleted {
-    public int lessonNumber;
+    public String lessonTitle;
     public boolean isEnabled;
 
-    public LessonCompleted(int lessonNumber, boolean isEnabled) {
-        this.lessonNumber = lessonNumber;
+    public LessonCompleted(String lessonTitle, boolean isEnabled) {
+        this.lessonTitle = lessonTitle;
         this.isEnabled = isEnabled;
     }
 }

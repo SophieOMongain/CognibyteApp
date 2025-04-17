@@ -13,7 +13,7 @@ import models.LessonCompleted;
 public class LessonSelectionAdapter extends RecyclerView.Adapter<LessonSelectionAdapter.LessonViewHolder> {
 
     public interface OnLessonClickListener {
-        void onLessonClick(int lessonNumber);
+        void onLessonClick(String lessonTitle);
     }
 
     private List<LessonCompleted> lessonItems;
@@ -34,12 +34,12 @@ public class LessonSelectionAdapter extends RecyclerView.Adapter<LessonSelection
     @Override
     public void onBindViewHolder(@NonNull LessonViewHolder holder, int position) {
         LessonCompleted item = lessonItems.get(position);
-        holder.btnLesson.setText("Lesson " + item.lessonNumber);
+        holder.btnLesson.setText(item.lessonTitle);
         holder.btnLesson.setEnabled(item.isEnabled);
         holder.btnLesson.setAlpha(item.isEnabled ? 1.0f : 0.5f);
         holder.btnLesson.setOnClickListener(v -> {
-            if(item.isEnabled && listener != null) {
-                listener.onLessonClick(item.lessonNumber);
+            if (item.isEnabled && listener != null) {
+                listener.onLessonClick(item.lessonTitle);
             }
         });
     }
@@ -51,6 +51,7 @@ public class LessonSelectionAdapter extends RecyclerView.Adapter<LessonSelection
 
     public static class LessonViewHolder extends RecyclerView.ViewHolder {
         Button btnLesson;
+
         public LessonViewHolder(@NonNull View itemView) {
             super(itemView);
             btnLesson = itemView.findViewById(R.id.btnLesson);

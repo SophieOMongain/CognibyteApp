@@ -29,7 +29,6 @@ public class LessonPageActivity extends AppCompatActivity {
     private TextView tvLessonTitle, tvLessonContent;
     private String lessonContent;
     private String lessonTitle;
-    private int lessonNumber;
     private int chapterNumber;
     private String language, skillLevel;
 
@@ -61,20 +60,15 @@ public class LessonPageActivity extends AppCompatActivity {
             return;
         }
 
-        lessonNumber = getIntent().getIntExtra("lessonNumber", -1);
         chapterNumber = getIntent().getIntExtra("chapterNumber", -1);
         language = getIntent().getStringExtra("language");
         lessonTitle = getIntent().getStringExtra("lessonTitle");
         skillLevel = getIntent().getStringExtra("skillLevel");
 
-        if (lessonNumber == -1 || chapterNumber == -1 || language == null || skillLevel == null) {
+        if (lessonTitle == null || lessonTitle.trim().isEmpty() || chapterNumber == -1 || language == null || skillLevel == null) {
             Toast.makeText(this, "Invalid lesson or chapter parameters.", Toast.LENGTH_LONG).show();
             finish();
             return;
-        }
-
-        if (lessonTitle == null || lessonTitle.trim().isEmpty()) {
-            lessonTitle = "Lesson " + lessonNumber;
         }
 
         fetchLessonFromFirestore();
@@ -91,7 +85,7 @@ public class LessonPageActivity extends AppCompatActivity {
                 return;
             }
             Intent intent = new Intent(LessonPageActivity.this, QuizActivity.class);
-            intent.putExtra("lessonNumber", lessonNumber);
+            intent.putExtra("lessonTitle", lessonTitle);
             intent.putExtra("chapterNumber", chapterNumber);
             intent.putExtra("lessonContent", lessonContent);
             intent.putExtra("language", language);
@@ -101,7 +95,7 @@ public class LessonPageActivity extends AppCompatActivity {
     }
 
     private void fetchLessonFromFirestore() {
-        if (language == null || lessonNumber == -1 || chapterNumber == -1) {
+        if (language == null || lessonTitle == null || chapterNumber == -1) {
             Toast.makeText(this, "Required lesson parameters missing.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -110,7 +104,7 @@ public class LessonPageActivity extends AppCompatActivity {
                 .document(language)
                 .collection("Chapters")
                 .whereEqualTo("chapterNumber", chapterNumber)
-                .whereEqualTo("lessonNumber", lessonNumber)
+                .whereEqualTo("lessonTitle", lessonTitle)
                 .get()
                 .addOnSuccessListener((QuerySnapshot querySnapshot) -> {
                     progressBar.setVisibility(android.view.View.GONE);
@@ -137,10 +131,10 @@ public class LessonPageActivity extends AppCompatActivity {
 
     private void markLessonCompleted() {
         String userId = mAuth.getCurrentUser().getUid();
-        String docId = "Chapter" + chapterNumber + "_Lesson" + lessonNumber;
+        String docId = "Chapter" + chapterNumber + "_Lesson" + lessonTitle.replaceAll("\\s+", "");
         Map<String, Object> progressData = new HashMap<>();
         progressData.put("chapterNumber", chapterNumber);
-        progressData.put("lessonNumber", lessonNumber);
+        progressData.put("lessonTitle", lessonTitle);
         progressData.put("progress", true);
         firestore.collection("UserProgress")
                 .document(userId)

@@ -8,5 +8,7 @@
         <item>JavaScript</item>
     </string-array>
 
+    <string name="select_chapter">Select Chapter</string>
+    <string name="select_lesson">Select Lesson</string>
     <string name="back">Back</string>
 </resources>

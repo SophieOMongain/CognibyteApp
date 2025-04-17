@@ -50,26 +50,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp" />
 
-    <EditText
-        android:id="@+id/etChapterNumber"
+    <Spinner
+        android:id="@+id/spinnerChapter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint=" Chapter Number (1-10)"
-        android:inputType="number"
         android:background="@color/light_gray"
+        android:prompt="@string/select_chapter"
         app:layout_constraintTop_toBottomOf="@id/spinnerLanguage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
-    <EditText
-        android:id="@+id/etLessonNumber"
+    <Spinner
+        android:id="@+id/spinnerLesson"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint=" Lesson Number (1-10)"
-        android:inputType="number"
         android:background="@color/light_gray"
-        app:layout_constraintTop_toBottomOf="@id/etChapterNumber"
+        android:prompt="@string/select_lesson"
+        app:layout_constraintTop_toBottomOf="@id/spinnerChapter"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
@@ -82,7 +80,7 @@
         android:text="Select"
         android:textColor="@color/secondary_blue"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/etLessonNumber"
+        app:layout_constraintTop_toBottomOf="@id/spinnerLesson"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

@@ -70,9 +70,11 @@ public class LessonActivity extends AppCompatActivity {
         recyclerViewLessons.setLayoutManager(new LinearLayoutManager(this));
         lessonItems = new ArrayList<>();
         for (int i = 1; i <= TOTAL_LESSONS; i++) {
+            String defaultLessonTitle = "Lesson " + i;
             boolean enabled = (i == 1);
-            lessonItems.add(new LessonCompleted(i, enabled));
+            lessonItems.add(new LessonCompleted(defaultLessonTitle, enabled));
         }
+
         lessonAdapter = new LessonSelectionAdapter(lessonItems, this::startLesson);
         recyclerViewLessons.setAdapter(lessonAdapter);
         btnHome.setOnClickListener(v -> navigateTo(HomeActivity.class));
@@ -109,18 +111,20 @@ public class LessonActivity extends AppCompatActivity {
                 .whereEqualTo("chapterNumber", chapterNumber)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-                    Map<Integer, Boolean> lessonProgress = new HashMap<>();
+                    Map<String, Boolean> lessonProgress = new HashMap<>();
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        Long lessonNum = doc.getLong("lessonNumber");
-                        if (lessonNum != null) {
+                        String lessonTitleFromDoc = doc.getString("lessonTitle");
+                        if (lessonTitleFromDoc != null) {
                             Boolean completed = doc.getBoolean("progress");
-                            lessonProgress.put(lessonNum.intValue(), completed != null && completed);
+                            lessonProgress.put(lessonTitleFromDoc, completed != null && completed);
                         }
                     }
-                    for (int i = 1; i <= TOTAL_LESSONS; i++) {
-                        boolean isEnabled = (i == 1) || lessonProgress.getOrDefault(i - 1, false);
-                        lessonItems.get(i - 1).isEnabled = isEnabled;
+                    for (int i = 0; i < TOTAL_LESSONS; i++) {
+                        String title = "Lesson " + (i + 1);
+                        boolean isEnabled = (i == 0) || (lessonProgress.getOrDefault("Lesson " + i, false));
+                        lessonItems.get(i).isEnabled = isEnabled;
                     }
+
                     lessonAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
@@ -129,40 +133,50 @@ public class LessonActivity extends AppCompatActivity {
                 });
     }
 
-    private void startLesson(int lessonNumber) {
+    private void startLesson(String lessonTitle) {
         firestore.collection("UserProgress")
                 .document(userId)
                 .collection("Chapters")
                 .whereEqualTo("chapterNumber", chapterNumber)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-                    Map<Integer, Boolean> lessonProgress = new HashMap<>();
+                    Map<String, Boolean> lessonProgress = new HashMap<>();
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        Long lessonNum = doc.getLong("lessonNumber");
-                        if (lessonNum != null) {
+                        String lessonTitleFromDoc = doc.getString("lessonTitle");
+                        if (lessonTitleFromDoc != null) {
                             Boolean completed = doc.getBoolean("progress");
-                            lessonProgress.put(lessonNum.intValue(), completed != null && completed);
+                            lessonProgress.put(lessonTitleFromDoc, completed != null && completed);
                         }
                     }
-                    if (lessonNumber > 1) {
-                        Boolean prevCompleted = lessonProgress.get(lessonNumber - 1);
+
+                    int lessonIndex = extractLessonIndex(lessonTitle);
+                    if (lessonIndex > 1) {
+                        String previousLessonTitle = "Lesson " + (lessonIndex - 1);
+                        Boolean prevCompleted = lessonProgress.get(previousLessonTitle);
                         if (prevCompleted == null || !prevCompleted) {
-                            Toast.makeText(this, "Complete Lesson " + (lessonNumber - 1) + " first!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Complete " + previousLessonTitle + " first!", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                    } else if (lessonNumber == 1 && chapterNumber > 1) {
                     }
-                    proceedToLesson(lessonNumber);
+                    proceedToLesson(lessonTitle);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to check lesson progress.", Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "Error fetching lesson progress: " + e.getMessage());
                 });
     }
+    private int extractLessonIndex(String lessonTitle) {
+        try {
+            String[] parts = lessonTitle.split(" ");
+            return Integer.parseInt(parts[1]);
+        } catch (Exception e) {
+            return 1;
+        }
+    }
 
-    private void proceedToLesson(int lessonNumber) {
+    private void proceedToLesson(String lessonTitle) {
         Intent intent = new Intent(LessonActivity.this, LessonPageActivity.class);
-        intent.putExtra("lessonNumber", lessonNumber);
+        intent.putExtra("lessonTitle", lessonTitle);
         intent.putExtra("chapterNumber", chapterNumber);
         intent.putExtra("language", selectedLanguage);
         intent.putExtra("skillLevel", skillLevel);

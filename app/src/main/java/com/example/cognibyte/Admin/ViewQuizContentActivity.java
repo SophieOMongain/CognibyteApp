@@ -1,154 +1,267 @@
 package com.example.cognibyte.Admin;
 
 import android.os.Bundle;
-import android.text.InputType;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.cognibyte.Adapter.EditLessonTextAdapter;
+import com.example.cognibyte.Adapter.LessonTextAdapter;
 import com.example.cognibyte.R;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FieldValue;
-import java.util.Arrays;
+import com.google.firebase.firestore.FieldPath;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ViewQuizContentActivity extends AppCompatActivity {
 
+    private DocumentReference currentQuizRef;
     private ImageView btnBack;
-    private Spinner spinnerLanguage, spinnerSkillLevel;
-    private EditText etChapterNumber, etLessonNumber, etQuizQuestion;
+    private Spinner spinnerLanguage, spinnerSkillLevel, spinnerChapter, spinnerLesson;
     private Button btnSelect, btnEdit, btnSave;
+    private RecyclerView rvQuestions;
     private FirebaseFirestore firestore;
-    private String selectedLanguage = "Select Language";
-    private String selectedSkillLevel = "Select Skill Level";
+
+    private String selectedLanguage  = "";
+    private String selectedSkillLevel = "";
+    private String selectedChapter   = "";
+    private String selectedLesson    = "";
+
+    private LessonTextAdapter readAdapter;
+    private EditLessonTextAdapter editAdapter;
+    private boolean isEditMode = false;
+    private final List<String> currentDisplay = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_quiz_content);
+
         btnBack = findViewById(R.id.btnBack);
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
         spinnerSkillLevel = findViewById(R.id.spinnerSkillLevel);
-        etChapterNumber = findViewById(R.id.etChapterNumber);
-        etLessonNumber = findViewById(R.id.etLessonNumber);
-        etQuizQuestion = findViewById(R.id.etQuizQuestion);
+        spinnerChapter = findViewById(R.id.spinnerChapter);
+        spinnerLesson = findViewById(R.id.spinnerLesson);
         btnSelect = findViewById(R.id.btnSelect);
-        btnEdit = findViewById(R.id.btnEdit);
-        btnSave = findViewById(R.id.btnSave);
+        btnEdit = findViewById(R.id.btnEditQuiz);
+        btnSave = findViewById(R.id.btnSaveQuiz);
+        rvQuestions = findViewById(R.id.rvQuestions);
         firestore = FirebaseFirestore.getInstance();
+        rvQuestions.setLayoutManager(new LinearLayoutManager(this));
+        readAdapter = new LessonTextAdapter(currentDisplay);
+        rvQuestions.setAdapter(readAdapter);
+        btnEdit.setVisibility(View.GONE);
+        btnSave.setVisibility(View.GONE);
+
         String[] languages = {"Java", "Javascript", "HTML", "Python"};
-        ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, languages);
-        spinnerLanguage.setAdapter(languageAdapter);
-        spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
-                selectedLanguage = languages[position];
+        ArrayAdapter<String> langAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_dropdown_item, languages
+        );
+        spinnerLanguage.setAdapter(langAdapter);
+        spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                selectedLanguage = languages[pos];
+                loadChapterTitles();
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
         });
-        String[] skillLevels = {"Beginner", "Intermediate", "Expert"};
-        ArrayAdapter<String> skillAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, skillLevels);
+
+        String[] skills = {"Beginner", "Intermediate", "Expert"};
+        ArrayAdapter<String> skillAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_dropdown_item, skills
+        );
+
         spinnerSkillLevel.setAdapter(skillAdapter);
-        spinnerSkillLevel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
-                selectedSkillLevel = skillLevels[position];
+        spinnerSkillLevel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                selectedSkillLevel = skills[pos];
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
         });
+
+        spinnerChapter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                selectedChapter = (String)p.getItemAtPosition(pos);
+                loadLessonTitles(selectedChapter);
+            }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
+        });
+
+        spinnerLesson.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                selectedLesson = (String)p.getItemAtPosition(pos);
+            }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
+        });
+
         btnBack.setOnClickListener(v -> finish());
+
         btnSelect.setOnClickListener(v -> {
-            String chapterStr = etChapterNumber.getText().toString().trim();
-            String lessonStr = etLessonNumber.getText().toString().trim();
-            if(chapterStr.isEmpty() || lessonStr.isEmpty()){
-                Toast.makeText(ViewQuizContentActivity.this, "Please enter chapter and lesson numbers", Toast.LENGTH_SHORT).show();
+            if (selectedLanguage.isEmpty() || selectedSkillLevel.isEmpty() || selectedChapter.isEmpty() || selectedLesson.isEmpty()) {
+                Toast.makeText(this,
+                        "Please select language, skill level, chapter & lesson",
+                        Toast.LENGTH_SHORT
+                ).show();
                 return;
             }
-            int chapterNumber, lessonNumber;
-            try {
-                chapterNumber = Integer.parseInt(chapterStr);
-                lessonNumber = Integer.parseInt(lessonStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(ViewQuizContentActivity.this, "Invalid number format", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if(chapterNumber < 1 || chapterNumber > 10 || lessonNumber < 0 || lessonNumber > 9){
-                Toast.makeText(ViewQuizContentActivity.this, "Chapter must be 1-10 and Lesson must be 0-9", Toast.LENGTH_SHORT).show();
-                return;
-            }
+
             firestore.collection("QuizContent")
                     .document(selectedLanguage)
                     .collection("Quizzes")
-                    .whereEqualTo("chapterNumber", chapterNumber)
-                    .whereEqualTo("lessonNumber", lessonNumber)
+                    .whereEqualTo("chapterTitle", selectedChapter)
+                    .whereEqualTo("lessonTitle", selectedLesson)
                     .whereEqualTo("skillLevel", selectedSkillLevel)
                     .get()
-                    .addOnSuccessListener(querySnapshot -> {
-                        if(!querySnapshot.isEmpty()){
-                            DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                            List<String> questions = (List<String>) document.get("question");
-                            if(questions != null && !questions.isEmpty()){
-                                String allQuestions = String.join("\n\n", questions);
-                                etQuizQuestion.setText(allQuestions);
-                                etQuizQuestion.setEnabled(false);
-                            } else {
-                                Toast.makeText(ViewQuizContentActivity.this, "Questions not found", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(ViewQuizContentActivity.this, "No quiz content found", Toast.LENGTH_SHORT).show();
+                    .addOnSuccessListener(quizQs -> {
+                        if (quizQs.isEmpty()) {
+                            Toast.makeText(this,
+                                    "No quiz found for these selections",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                            return;
                         }
+                        DocumentSnapshot quizDoc = quizQs.getDocuments().get(0);
+                        currentQuizRef = quizDoc.getReference();
+
+                        currentQuizRef.collection("Questions")
+                                .orderBy(FieldPath.documentId())
+                                .get()
+                                .addOnSuccessListener(qs2 -> {
+                                    if (qs2.isEmpty()) {
+                                        Toast.makeText(this,
+                                                "Quiz exists but has no questions",
+                                                Toast.LENGTH_SHORT
+                                        ).show();
+                                        return;
+                                    }
+
+                                    currentDisplay.clear();
+                                    for (DocumentSnapshot qSnap : qs2.getDocuments()) {
+                                        String question = qSnap.getString("question");
+                                        if (question != null) {
+                                            currentDisplay.add(question);
+                                        }
+                                    }
+                                    isEditMode = false;
+                                    readAdapter = new LessonTextAdapter(currentDisplay);
+                                    rvQuestions.setAdapter(readAdapter);
+                                    btnEdit.setVisibility(View.VISIBLE);
+                                    btnSave.setVisibility(View.VISIBLE);
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this,
+                                                "Error loading questions: " + e.getMessage(),
+                                                Toast.LENGTH_SHORT
+                                        ).show()
+                                );
                     })
-                    .addOnFailureListener(e -> Toast.makeText(ViewQuizContentActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this,
+                                    "Error querying quiz: " + e.getMessage(),
+                                    Toast.LENGTH_SHORT
+                            ).show()
+                    );
         });
+
         btnEdit.setOnClickListener(v -> {
-            etQuizQuestion.setEnabled(true);
-            etQuizQuestion.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+            if (!isEditMode) {
+                editAdapter = new EditLessonTextAdapter(new ArrayList<>(currentDisplay));
+                rvQuestions.setAdapter(editAdapter);
+                isEditMode = true;
+                btnEdit.setText("Cancel");
+            } else {
+                rvQuestions.setAdapter(readAdapter);
+                isEditMode = false;
+                btnEdit.setText("Edit");
+            }
         });
+
         btnSave.setOnClickListener(v -> {
-            String newQuestionsText = etQuizQuestion.getText().toString().trim();
-            if(newQuestionsText.isEmpty()){
-                Toast.makeText(ViewQuizContentActivity.this, "Questions cannot be empty", Toast.LENGTH_SHORT).show();
+            if (!isEditMode || currentQuizRef == null) {
+                Toast.makeText(this,
+                        "Nothing to save",
+                        Toast.LENGTH_SHORT
+                ).show();
                 return;
             }
-            String chapterStr = etChapterNumber.getText().toString().trim();
-            String lessonStr = etLessonNumber.getText().toString().trim();
-            int chapterNumber, lessonNumber;
-            try {
-                chapterNumber = Integer.parseInt(chapterStr);
-                lessonNumber = Integer.parseInt(lessonStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(ViewQuizContentActivity.this, "Invalid chapter or lesson number", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            List<String> updatedQuestions = Arrays.asList(newQuestionsText.split("\n\n"));
-            firestore.collection("QuizContent")
-                    .document(selectedLanguage)
-                    .collection("Quizzes")
-                    .whereEqualTo("chapterNumber", chapterNumber)
-                    .whereEqualTo("lessonNumber", lessonNumber)
-                    .whereEqualTo("skillLevel", selectedSkillLevel)
-                    .get()
-                    .addOnSuccessListener(querySnapshot -> {
-                        if(!querySnapshot.isEmpty()){
-                            DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                            document.getReference().update("question", updatedQuestions, "lastEdit", FieldValue.serverTimestamp())
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(ViewQuizContentActivity.this, "Quiz content updated", Toast.LENGTH_SHORT).show();
-                                        etQuizQuestion.setEnabled(false);
-                                    })
-                                    .addOnFailureListener(e -> Toast.makeText(ViewQuizContentActivity.this, "Error updating quiz content", Toast.LENGTH_SHORT).show());
-                        } else {
-                            Toast.makeText(ViewQuizContentActivity.this, "No quiz content found to update", Toast.LENGTH_SHORT).show();
-                        }
+            List<String> updated = editAdapter.getItems();
+            Map<String,Object> updates = new HashMap<>();
+            updates.put("questions", updated);
+            updates.put("lastEdit", com.google.firebase.firestore.FieldValue.serverTimestamp());
+
+            currentQuizRef.update(updates)
+                    .addOnSuccessListener(a -> {
+                        Toast.makeText(this,
+                                "Quiz updated successfully",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                        currentDisplay.clear();
+                        currentDisplay.addAll(updated);
+                        readAdapter = new LessonTextAdapter(currentDisplay);
+                        rvQuestions.setAdapter(readAdapter);
+                        isEditMode = false;
+                        btnEdit.setText("Edit");
                     })
-                    .addOnFailureListener(e -> Toast.makeText(ViewQuizContentActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(
+                            this,
+                            "Failed to save quiz: " + e.getMessage(),
+                            Toast.LENGTH_SHORT
+                    ).show());
         });
+    }
+
+    private void loadChapterTitles() {
+        firestore.collection("ChapterContent")
+                .document(selectedLanguage)
+                .collection("Chapters")
+                .get()
+                .addOnSuccessListener(qs -> {
+                    List<String> chapters = new ArrayList<>();
+                    for (DocumentSnapshot d : qs.getDocuments()) {
+                        String t = d.getString("chapterTitle");
+                        if (t != null && !chapters.contains(t)) chapters.add(t);
+                    }
+                    spinnerChapter.setAdapter(new ArrayAdapter<>(
+                            this, android.R.layout.simple_spinner_dropdown_item, chapters
+                    ));
+                })
+                .addOnFailureListener(e -> Toast.makeText(
+                        this,
+                        "Error loading chapters: " + e.getMessage(),
+                        Toast.LENGTH_SHORT
+                ).show());
+    }
+
+    private void loadLessonTitles(String chapterTitle) {
+        firestore.collection("ChapterContent")
+                .document(selectedLanguage)
+                .collection("Chapters")
+                .whereEqualTo("chapterTitle", chapterTitle)
+                .get()
+                .addOnSuccessListener(qs -> {
+                    List<String> lessons = new ArrayList<>();
+                    for (DocumentSnapshot d : qs.getDocuments()) {
+                        String t = d.getString("lessonTitle");
+                        if (t != null && !lessons.contains(t)) lessons.add(t);
+                    }
+                    spinnerLesson.setAdapter(new ArrayAdapter<>(
+                            this, android.R.layout.simple_spinner_dropdown_item, lessons
+                    ));
+                })
+                .addOnFailureListener(e -> Toast.makeText(
+                        this,
+                        "Error loading lessons: " + e.getMessage(),
+                        Toast.LENGTH_SHORT
+                ).show());
     }
 }

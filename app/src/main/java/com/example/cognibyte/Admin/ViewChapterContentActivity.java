@@ -2,6 +2,7 @@ package com.example.cognibyte.Admin;
 
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -28,12 +29,14 @@ import java.util.Locale;
 public class ViewChapterContentActivity extends AppCompatActivity {
 
     private ImageView btnBack;
-    private Spinner spinnerLanguage;
-    private EditText etChapterNumber, etLessonNumber, etLastEdited;
+    private Spinner spinnerLanguage, spinnerChapter, spinnerLesson;
+    private EditText etLastEdited;
     private Button btnSelect, btnEdit, btnSave;
     private RecyclerView rvLessonContent, rvLessonRecap;
     private FirebaseFirestore firestore;
     private String selectedLanguage = "Select Language";
+    private String selectedChapter = "";
+    private String selectedLesson = "";
     private String currentLessonContent = "";
     private String currentLessonRecap = "";
     private List<String> contentList = new ArrayList<>();
@@ -47,10 +50,11 @@ public class ViewChapterContentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_chapter_content);
+
         btnBack = findViewById(R.id.btnBack);
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
-        etChapterNumber = findViewById(R.id.etChapterNumber);
-        etLessonNumber = findViewById(R.id.etLessonNumber);
+        spinnerChapter = findViewById(R.id.spinnerChapter);
+        spinnerLesson = findViewById(R.id.spinnerLesson);
         etLastEdited = findViewById(R.id.LastEdited);
         btnSelect = findViewById(R.id.btnSelect);
         btnEdit = findViewById(R.id.btnEdit);
@@ -58,42 +62,57 @@ public class ViewChapterContentActivity extends AppCompatActivity {
         rvLessonContent = findViewById(R.id.rvLessonContent);
         rvLessonRecap = findViewById(R.id.rvLessonRecap);
         firestore = FirebaseFirestore.getInstance();
+
         rvLessonContent.setLayoutManager(new LinearLayoutManager(this));
         rvLessonRecap.setLayoutManager(new LinearLayoutManager(this));
         rvLessonContent.setAdapter(new LessonTextAdapter(new ArrayList<>()));
         rvLessonRecap.setAdapter(new LessonTextAdapter(new ArrayList<>()));
+
         String[] languages = {"Java", "Javascript", "HTML", "Python"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, languages);
-        spinnerLanguage.setAdapter(adapter);
+        ArrayAdapter<String> langAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, languages);
+        spinnerLanguage.setAdapter(langAdapter);
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedLanguage = languages[position];
+                loadChapterTitles();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        spinnerChapter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                selectedChapter = (String) parent.getItemAtPosition(pos);
+                loadLessonTitles(selectedChapter);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
         });
-        btnBack.setOnClickListener(v -> finish());
-        btnSelect.setOnClickListener(v -> {
-            String chapterStr = etChapterNumber.getText().toString().trim();
-            String lessonStr = etLessonNumber.getText().toString().trim();
-            if(chapterStr.isEmpty() || lessonStr.isEmpty()){
-                Toast.makeText(ViewChapterContentActivity.this, "Please enter both chapter and lesson numbers", Toast.LENGTH_SHORT).show();
-                return;
+
+        spinnerLesson.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                selectedLesson = (String) parent.getItemAtPosition(pos);
             }
-            int chapterNumber, lessonNumber;
-            try {
-                chapterNumber = Integer.parseInt(chapterStr);
-                lessonNumber = Integer.parseInt(lessonStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(ViewChapterContentActivity.this, "Invalid number format", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+
+        btnBack.setOnClickListener(v -> finish());
+
+        btnSelect.setOnClickListener(v -> {
+            if(selectedChapter.isEmpty() || selectedLesson.isEmpty()){
+                Toast.makeText(ViewChapterContentActivity.this, "Please select both chapter and lesson titles", Toast.LENGTH_SHORT).show();
                 return;
             }
             firestore.collection("ChapterContent")
                     .document(selectedLanguage)
                     .collection("Chapters")
-                    .whereEqualTo("chapterNumber", chapterNumber)
-                    .whereEqualTo("lessonNumber", lessonNumber)
+                    .whereEqualTo("chapterTitle", selectedChapter)
+                    .whereEqualTo("lessonTitle", selectedLesson)
                     .get()
                     .addOnSuccessListener(querySnapshot -> {
                         if(!querySnapshot.isEmpty()){
@@ -119,6 +138,7 @@ public class ViewChapterContentActivity extends AppCompatActivity {
                     })
                     .addOnFailureListener(e -> Toast.makeText(ViewChapterContentActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         });
+
         btnEdit.setOnClickListener(v -> {
             if(!isEditMode){
                 editContentAdapter = new EditLessonTextAdapter(new ArrayList<>(contentList));
@@ -128,25 +148,18 @@ public class ViewChapterContentActivity extends AppCompatActivity {
                 isEditMode = true;
             }
         });
+
         btnSave.setOnClickListener(v -> {
             if(isEditMode){
                 List<String> updatedContentList = editContentAdapter.getItems();
                 List<String> updatedRecapList = editRecapAdapter.getItems();
                 String newContent = String.join("\n", updatedContentList);
                 String newRecap = String.join(". ", updatedRecapList);
-                int chapterNumber, lessonNumber;
-                try {
-                    chapterNumber = Integer.parseInt(etChapterNumber.getText().toString().trim());
-                    lessonNumber = Integer.parseInt(etLessonNumber.getText().toString().trim());
-                } catch (NumberFormatException e) {
-                    Toast.makeText(ViewChapterContentActivity.this, "Invalid chapter or lesson number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 firestore.collection("ChapterContent")
                         .document(selectedLanguage)
                         .collection("Chapters")
-                        .whereEqualTo("chapterNumber", chapterNumber)
-                        .whereEqualTo("lessonNumber", lessonNumber)
+                        .whereEqualTo("chapterTitle", selectedChapter)
+                        .whereEqualTo("lessonTitle", selectedLesson)
                         .get()
                         .addOnSuccessListener(querySnapshot -> {
                             if(!querySnapshot.isEmpty()){
@@ -173,5 +186,53 @@ public class ViewChapterContentActivity extends AppCompatActivity {
                         .addOnFailureListener(e -> Toast.makeText(ViewChapterContentActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         });
+    }
+
+    private void loadChapterTitles() {
+        firestore.collection("ChapterContent")
+                .document(selectedLanguage)
+                .collection("Chapters")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<String> chapterTitles = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        String chapterTitle = doc.getString("chapterTitle");
+                        if (chapterTitle != null && !chapterTitles.contains(chapterTitle)) {
+                            chapterTitles.add(chapterTitle);
+                        }
+                    }
+                    if (!chapterTitles.isEmpty()) {
+                        ArrayAdapter<String> chapterAdapter = new ArrayAdapter<>(ViewChapterContentActivity.this, android.R.layout.simple_spinner_dropdown_item, chapterTitles);
+                        spinnerChapter.setAdapter(chapterAdapter);
+                    } else {
+                        Toast.makeText(ViewChapterContentActivity.this, "No chapters found", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(ViewChapterContentActivity.this, "Error loading chapters: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void loadLessonTitles(String chapterTitle) {
+        firestore.collection("ChapterContent")
+                .document(selectedLanguage)
+                .collection("Chapters")
+                .whereEqualTo("chapterTitle", chapterTitle)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<String> lessonTitles = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        String lessonTitle = doc.getString("lessonTitle");
+                        if (lessonTitle != null && !lessonTitles.contains(lessonTitle)) {
+                            lessonTitles.add(lessonTitle);
+                        }
+                    }
+                    if (!lessonTitles.isEmpty()) {
+                        ArrayAdapter<String> lessonAdapter = new ArrayAdapter<>(ViewChapterContentActivity.this, android.R.layout.simple_spinner_dropdown_item, lessonTitles);
+                        spinnerLesson.setAdapter(lessonAdapter);
+                    } else {
+                        spinnerLesson.setAdapter(null);
+                        Toast.makeText(ViewChapterContentActivity.this, "No lessons found for the selected chapter", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(ViewChapterContentActivity.this, "Error loading lessons: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

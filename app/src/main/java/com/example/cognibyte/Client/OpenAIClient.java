@@ -5,24 +5,21 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 public class OpenAIClient {
@@ -42,36 +39,34 @@ public class OpenAIClient {
         void onError(String error);
     }
 
-    public static void generateLesson(int chapterNumber, int lessonNumber, String language, CompletionCallback callback) {
-        String prompt = "Generate Lesson " + lessonNumber + " of Chapter " + chapterNumber + " for " + language + " student. " +
-                "Ensure the lesson builds upon previous knowledge with clear explanations and examples. " +
-                "Generate a concise lesson title and detailed lesson content (around 300-500 words). " +
-                "Respond with a JSON object having keys 'title' and 'content'.";
+    public static void generateLesson(int chapterNumber, int lessonNumber, String chapterTitle, String lessonTitle, String description, String language, CompletionCallback callback) {
+        String prompt = "You are creating Lesson " + lessonNumber + " of Chapter " + chapterNumber
+                + " (\"" + chapterTitle + "\") titled \"" + lessonTitle + "\" for " + language + " learners.\n\nDescription: " + description
+                + "\n\nPlease generate a concise lesson title and detailed lesson content (300–500 words) " + "that builds on prior knowledge with clear explanations and examples. "
+                + "Respond *only* with a JSON object with keys:\n" + "  • \"title\": your generated lesson title\n" + "  • \"content\": the full lesson text";
+
         sendRequest(prompt, 700, new CompletionCallback() {
             @Override
             public void onSuccess(String lessonResponse) {
                 try {
-                    Log.d(TAG, "Raw lesson response: " + lessonResponse);
                     JSONObject lessonJson = new JSONObject(lessonResponse);
-                    String title = lessonJson.getString("title");
+                    String generatedTitle = lessonJson.getString("title");
                     String content = lessonJson.getString("content");
 
-                    String recapPrompt = "Summarize the following lesson in 3 sentences for beginner " + language + " learners:\n\n" + content;
+                    String recapPrompt = "Summarize Lesson " + lessonNumber + " of Chapter " + chapterNumber
+                            + " in 3 simple sentences for beginner " + language + " learners:\n\n"
+                            + content;
+
                     sendRequest(recapPrompt, 150, new CompletionCallback() {
                         @Override
                         public void onSuccess(String recap) {
-                            storeLessonInFirestore(
-                                    chapterNumber,
-                                    lessonNumber,
-                                    language,
-                                    title,
-                                    "Summary of " + title,
-                                    content,
-                                    recap
+                            storeLessonInFirestore(chapterNumber, lessonNumber, chapterTitle, lessonTitle, description, language, generatedTitle, content, recap);
+                            callback.onSuccess(
+                                    "Lesson and recap saved.\n\n"
+                                            + "Title: " + generatedTitle + "\n\n"
+                                            + "Recap:\n" + recap
                             );
-                            callback.onSuccess("Lesson and recap saved.\n\nTitle: " + title + "\n\nRecap:\n" + recap);
                         }
-
                         @Override
                         public void onError(String error) {
                             callback.onError("Failed to generate recap: " + error);
@@ -79,7 +74,8 @@ public class OpenAIClient {
                     });
 
                 } catch (Exception e) {
-                    callback.onError("Error parsing lesson JSON: " + e.getMessage() + "\nRaw lesson response: " + lessonResponse);
+                    callback.onError("Error parsing lesson JSON: " + e.getMessage()
+                            + "\nRaw response: " + lessonResponse);
                 }
             }
 
@@ -90,12 +86,12 @@ public class OpenAIClient {
         });
     }
 
-    public static void generateQuiz(int chapterNumber, int lessonNumber, String language, String lessonContent, QuizCallback callback) {
-        String prompt = "Generate a JSON-formatted multiple-choice quiz with EXACTLY 10 questions for Lesson "
-                + lessonNumber + " of Chapter " + chapterNumber + " in " + language + ". Each question must have 4 answer choices, with only one correct answer. " +
-                "In addition, provide a short explanation for why the correct answer is correct. " +
-                "Format the response as a JSON array with fields: 'question', 'options', 'answer', and 'explanation'. " +
-                "Respond ONLY with the JSON array.";
+    public static void generateQuiz(int chapterNumber, int lessonNumber, String language, String skillLevel, String lessonContent, QuizCallback callback) {
+        String prompt = "Generate a JSON-formatted multiple-choice quiz with EXACTLY 10 questions for "
+                + "Lesson " + lessonNumber + " of Chapter " + chapterNumber + " in " + language + " at the " + skillLevel + " level. "
+                + "Each question must have 4 answer choices, with only one correct answer, " + "and include a brief explanation. "
+                + "Format the response as a JSON array of objects with keys 'question', 'options', 'answer', and 'explanation'.\n\n" + lessonContent;
+
         sendRequest(prompt + "\n" + lessonContent, 1200, new CompletionCallback() {
             @Override
             public void onSuccess(String result) {
@@ -146,38 +142,55 @@ public class OpenAIClient {
         });
     }
 
-    public static void saveQuizToFirestore(int chapterNumber, int lessonNumber, String language, String lessonTitle, String skillLevel, String chapterId, List<Map<String, Object>> questions) {
-        Log.d(TAG, "Saving quiz to Firestore under QuizContent/" + language + "/Quizzes/");
-        Map<String, Object> quizData = new HashMap<>();
-        quizData.put("quizId", "");
+    public static void saveQuizToFirestore(int chapterNumber, int lessonNumber, String language, String chapterTitle, String lessonTitle, String skillLevel, String chapterId, List<Map<String,Object>> questions) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        DocumentReference quizDoc = firestore
+                .collection("QuizContent")
+                .document(language)
+                .collection("Quizzes")
+                .document();
+        String quizId = quizDoc.getId();
+
+        Map<String,Object> quizData = new HashMap<>();
+        quizData.put("quizId", quizId);
         quizData.put("chapterId", chapterId);
         quizData.put("chapterNumber", chapterNumber);
         quizData.put("lessonNumber", lessonNumber);
+        quizData.put("chapterTitle", chapterTitle);
         quizData.put("lessonTitle", lessonTitle);
         quizData.put("skillLevel", skillLevel);
-        quizData.put("questions", questions);
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        DocumentReference parentDoc = firestore.collection("QuizContent").document(language);
-        parentDoc.set(new HashMap<>(), SetOptions.merge())
-                .addOnSuccessListener(unused -> {
-                    DocumentReference quizDoc = parentDoc.collection("Quizzes").document();
-                    String quizId = quizDoc.getId();
-                    quizData.put("quizId", quizId);
-                    Log.d(TAG, "Storing quiz at path: /QuizContent/" + language + "/Quizzes/" + quizId);
-                    quizDoc.set(quizData, SetOptions.merge())
-                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Quiz stored successfully with ID: " + quizId))
-                            .addOnFailureListener(e -> Log.e(TAG, "Error storing quiz: " + e.getMessage()));
+        quizData.put("lastEdit", FieldValue.serverTimestamp());
+
+        List<Map<String,Object>> sanitized = new ArrayList<>();
+        for (Map<String,Object> q : questions) {
+            Map<String,Object> m = new HashMap<>();
+            m.put("question", q.get("question"));
+            m.put("options", q.get("options"));
+            m.put("answer", q.get("answer"));
+            m.put("explanation", q.get("explanation"));
+            sanitized.add(m);
+        }
+        quizData.put("questions", sanitized);
+
+        quizDoc.set(quizData, SetOptions.merge())
+                .addOnSuccessListener(__ -> {
+                    Log.d(TAG, "Quiz saved: " + quizId);
+                    CollectionReference qCol = quizDoc.collection("Questions");
+                    for (int i = 0; i < sanitized.size(); i++) {
+                        final int num = i + 1;
+                        qCol.document(String.valueOf(num))
+                                .set(sanitized.get(i), SetOptions.merge())
+                                .addOnSuccessListener(___ ->
+                                        Log.d(TAG, "Saved question #" + num))
+                                .addOnFailureListener(e ->
+                                        Log.e(TAG, "Failed to save question #"+num+": "+e.getMessage()));
+                    }
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "Failed to create parent document in QuizContent: " + e.getMessage()));
+                .addOnFailureListener(e ->
+                        Log.e(TAG, "Failed to save quiz: " + e.getMessage()));
     }
 
-    public static void generateAnswerExplanation(String question, String correctAnswer, CompletionCallback callback) {
-        String prompt = "Explain why the following answer is correct in a simple and educational way:\n" +
-                "Question: " + question + "\n" +
-                "Correct Answer: " + correctAnswer + "\n" +
-                "Provide a short but clear explanation.";
-        sendRequest(prompt, 150, callback);
-    }
+
 
     private static void sendRequest(String prompt, int maxTokens, CompletionCallback callback) {
         OkHttpClient client = new OkHttpClient.Builder()
@@ -230,39 +243,44 @@ public class OpenAIClient {
         });
     }
 
-    private static void storeLessonInFirestore(int chapterNumber, int lessonNumber, String language, String title, String summary, String content, String recap) {
+    private static void storeLessonInFirestore(int chapterNumber, int lessonNumber, String chapterTitle, String lessonTitle, String description, String language, String generatedTitle, String content, String recap) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        Map<String, Object> chapterData = new HashMap<>();
-        chapterData.put("chapterNumber", chapterNumber);
-        chapterData.put("lessonNumber", lessonNumber);
-        chapterData.put("lessonTitle", title);
-        chapterData.put("lessonContent", content);
-        chapterData.put("lessonRecap", recap);
-        chapterData.put("summary", summary);
-        chapterData.put("lastEdit", com.google.firebase.firestore.FieldValue.serverTimestamp());
+        DocumentReference parentDoc = firestore
+                .collection("ChapterContent")
+                .document(language);
+        CollectionReference chaptersCol = parentDoc.collection("Chapters");
 
-        DocumentReference parentDoc = firestore.collection("ChapterContent").document(language);
         parentDoc.set(new HashMap<>(), SetOptions.merge())
-                .addOnSuccessListener(unused -> {
-                    parentDoc.collection("Chapters")
-                            .whereEqualTo("chapterNumber", chapterNumber)
-                            .whereEqualTo("lessonNumber", lessonNumber)
-                            .get()
-                            .addOnSuccessListener(querySnapshot -> {
-                                if (!querySnapshot.isEmpty()) {
-                                    DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                                    String docId = document.getId();
-                                    chapterData.put("chapterId", docId);
-                                    document.getReference().set(chapterData, SetOptions.merge());
-                                } else {
-                                    DocumentReference docRef = parentDoc.collection("Chapters").document();
-                                    String docId = docRef.getId();
-                                    chapterData.put("chapterId", docId);
-                                    docRef.set(chapterData, SetOptions.merge());
-                                }
-                            });
-                });
+                .addOnSuccessListener(unused ->
+                        chaptersCol
+                                .whereEqualTo("chapterNumber", chapterNumber)
+                                .whereEqualTo("lessonNumber",  lessonNumber)
+                                .get()
+                                .addOnSuccessListener(found -> {
+                                    Map<String,Object> data = new HashMap<>();
+                                    data.put("chapterNumber",  chapterNumber);
+                                    data.put("lessonNumber",   lessonNumber);
+                                    data.put("chapterTitle",   chapterTitle);
+                                    data.put("lessonTitle",    lessonTitle);
+                                    data.put("description",    description);
+                                    data.put("generatedTitle", generatedTitle);
+                                    data.put("lessonContent",  content);
+                                    data.put("lessonRecap",    recap);
+                                    data.put("lastEdit",       FieldValue.serverTimestamp());
+
+                                    if (!found.isEmpty()) {
+                                        DocumentReference existing = found.getDocuments().get(0).getReference();
+                                        data.put("chapterId", existing.getId());
+                                        existing.set(data, SetOptions.merge());
+                                    } else {
+                                        DocumentReference newDoc = chaptersCol.document();
+                                        data.put("chapterId", newDoc.getId());
+                                        newDoc.set(data, SetOptions.merge());
+                                    }
+                                })
+                );
     }
+
 
     private static String extractJsonArray(String response) {
         try {
@@ -326,22 +344,6 @@ public class OpenAIClient {
                 });
             }
         }).addOnFailureListener(e -> callback.onError("Error fetching quiz: " + e.getMessage()));
-    }
-
-    public static void markLessonCompleted(int lessonNumber) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        if (userId == null) {
-            Log.e(TAG, "User not logged in, cannot update lesson progress.");
-            return;
-        }
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        Map<String, Object> progress = new HashMap<>();
-        progress.put("lesson_" + lessonNumber, true);
-        firestore.collection("LessonProgress")
-                .document(userId)
-                .set(progress, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Lesson " + lessonNumber + " marked as completed"))
-                .addOnFailureListener(e -> Log.e(TAG, "Failed to update lesson progress: " + e.getMessage()));
     }
 
     public static boolean isLessonCompleted(Context context, int lessonNumber) {

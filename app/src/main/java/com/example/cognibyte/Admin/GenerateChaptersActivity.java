@@ -10,9 +10,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.cognibyte.Client.OpenAIClient;
 import com.example.cognibyte.R;
 
@@ -20,10 +18,11 @@ public class GenerateChaptersActivity extends AppCompatActivity {
 
     private ImageView btnBack;
     private Spinner spinnerLanguage;
-    private EditText etChapterNumber, etLessonNumber;
+    private EditText etChapterTitle, etChapterNumber;
+    private EditText etLessonTitle, etLessonNumber;
+    private EditText etDescription;
     private Button btnGenerateContent, btnViewContent;
-
-    private String selectedLanguage = "Select Language";
+    private String selectedLanguage = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,71 +31,86 @@ public class GenerateChaptersActivity extends AppCompatActivity {
 
         btnBack = findViewById(R.id.btnBack);
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
+        etChapterTitle = findViewById(R.id.etChapterTitle);
         etChapterNumber = findViewById(R.id.etChapterNumber);
+        etLessonTitle = findViewById(R.id.etLessonTitle);
         etLessonNumber = findViewById(R.id.etLessonNumber);
+        etDescription = findViewById(R.id.etDescription);
         btnGenerateContent = findViewById(R.id.btnGenerateContent);
         btnViewContent = findViewById(R.id.btnViewContent);
 
         String[] languages = {"Java", "Javascript", "HTML", "Python"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, languages);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_dropdown_item, languages);
         spinnerLanguage.setAdapter(adapter);
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedLanguage = languages[position];
+            @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                selectedLanguage = languages[pos];
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
         });
 
         btnBack.setOnClickListener(v -> finish());
 
         btnGenerateContent.setOnClickListener(v -> {
-            String chapterStr = etChapterNumber.getText().toString().trim();
-            String lessonStr = etLessonNumber.getText().toString().trim();
-            if (chapterStr.isEmpty() || lessonStr.isEmpty()) {
-                Toast.makeText(GenerateChaptersActivity.this, "Please enter both chapter and lesson numbers", Toast.LENGTH_SHORT).show();
+            String chapterTitle = etChapterTitle.getText().toString().trim();
+            String lesssonTitle = etLessonTitle.getText().toString().trim();
+            String description = etDescription.getText().toString().trim();
+            String chapterNumber = etChapterNumber.getText().toString().trim();
+            String lessonNumber = etLessonNumber.getText().toString().trim();
+
+            if (chapterTitle.isEmpty() || lesssonTitle.isEmpty() || description.isEmpty()
+                    || chapterNumber.isEmpty() || lessonNumber.isEmpty()) {
+                Toast.makeText(this,
+                        "Fill in chapter #, lesson #, titles & description",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            int chapterNumber, lessonNumber;
+            int chapterNum, lesNum;
             try {
-                chapterNumber = Integer.parseInt(chapterStr);
-                lessonNumber = Integer.parseInt(lessonStr);
+                chapterNum = Integer.parseInt(chapterNumber);
+                lesNum = Integer.parseInt(lessonNumber);
             } catch (NumberFormatException e) {
-                Toast.makeText(GenerateChaptersActivity.this, "Invalid number format", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,
+                        "Chapter/Lesson numbers must be integers",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (chapterNumber < 1 || chapterNumber > 10 || lessonNumber < 1 || lessonNumber > 10) {
-                Toast.makeText(GenerateChaptersActivity.this, "Chapter and Lesson numbers must be between 1 and 10", Toast.LENGTH_SHORT).show();
+            if (chapterNum < 1 || chapterNum > 5 || lesNum < 1 || lesNum > 5) {
+                Toast.makeText(this,
+                        "Numbers must be between 1 and 5",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
 
             btnGenerateContent.setEnabled(false);
 
-            OpenAIClient.generateLesson(chapterNumber, lessonNumber, selectedLanguage, new OpenAIClient.CompletionCallback() {
-                @Override
-                public void onSuccess(String result) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(GenerateChaptersActivity.this, "Content generated and saved successfully", Toast.LENGTH_LONG).show();
-                        btnGenerateContent.setEnabled(true);
-                    });
-                }
-                @Override
-                public void onError(String error) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(GenerateChaptersActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();
-                        btnGenerateContent.setEnabled(true);
-                    });
-                }
-            });
+            OpenAIClient.generateLesson(chapterNum, lesNum, chapterTitle, lesssonTitle, description, selectedLanguage,
+                    new OpenAIClient.CompletionCallback() {
+                        @Override
+                        public void onSuccess(String result) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(GenerateChaptersActivity.this,
+                                        "Content generated and saved!", Toast.LENGTH_LONG).show();
+                                btnGenerateContent.setEnabled(true);
+                            });
+                        }
+                        @Override
+                        public void onError(String error) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(GenerateChaptersActivity.this,
+                                        "Error: " + error, Toast.LENGTH_LONG).show();
+                                btnGenerateContent.setEnabled(true);
+                            });
+                        }
+                    }
+            );
         });
 
-        btnViewContent.setOnClickListener(v -> {
-            Intent intent = new Intent(GenerateChaptersActivity.this, ViewChapterContentActivity.class);
-            startActivity(intent);
-        });
+        btnViewContent.setOnClickListener(v ->
+                startActivity(new Intent(this, ViewChapterContentActivity.class))
+        );
     }
 }
