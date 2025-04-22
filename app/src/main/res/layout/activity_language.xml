@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/light_gray">
 
-    <!-- Header Section with Back Button -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -33,7 +32,6 @@
             android:textColor="@color/primary_blue"/>
     </LinearLayout>
 
-    <!-- Change Program Language Button -->
     <Button
         android:id="@+id/btnChangeLanguage"
         android:layout_width="280dp"
@@ -41,7 +39,7 @@
         android:text="CHANGE PROGRAM LANGUAGE"
         android:textSize="18sp"
         android:textColor="@color/white"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_button_dark"
         android:paddingVertical="14dp"
         android:gravity="center"
         android:layout_marginTop="40dp"
@@ -49,7 +47,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Add Program Language Button -->
     <Button
         android:id="@+id/btnAddLanguage"
         android:layout_width="280dp"
@@ -57,7 +54,7 @@
         android:text="ADD PROGRAM LANGUAGE"
         android:textSize="18sp"
         android:textColor="@color/white"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_button_dark"
         android:paddingVertical="14dp"
         android:gravity="center"
         android:layout_marginTop="20dp"
@@ -65,7 +62,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Save Changes Button -->
     <Button
         android:id="@+id/btnSaveChanges"
         android:layout_width="280dp"

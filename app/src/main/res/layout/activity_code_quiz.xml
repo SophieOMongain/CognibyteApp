@@ -8,7 +8,6 @@
     android:padding="16dp"
     android:background="@color/light_gray">
 
-    <!-- Back Button -->
     <Button
         android:id="@+id/btnBack"
         android:layout_width="wrap_content"
@@ -20,7 +19,6 @@
         android:layout_gravity="start"
         android:paddingBottom="12dp" />
 
-    <!-- Top Section (Title & Question) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,7 +26,6 @@
         android:padding="16dp"
         android:background="@color/primary_blue">
 
-        <!-- Quiz Title -->
         <TextView
             android:id="@+id/tvCodeQuizTitle"
             android:layout_width="wrap_content"
@@ -38,7 +35,6 @@
             android:textStyle="bold"
             android:textColor="@android:color/white" />
 
-        <!-- Quiz Question -->
         <TextView
             android:id="@+id/tvQuizQuestion"
             android:layout_width="wrap_content"
@@ -49,7 +45,6 @@
             android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <!-- Code Input Field using EditText -->
     <EditText
         android:id="@+id/etCodeInput"
         android:layout_width="match_parent"
@@ -64,7 +59,6 @@
         android:inputType="textMultiLine"
         android:scrollbars="vertical" />
 
-    <!-- Spinner for language selection -->
     <Spinner
         android:id="@+id/spinnerLanguage"
         android:layout_width="match_parent"
@@ -72,7 +66,6 @@
         android:layout_marginTop="8dp"
         android:background="@color/white" />
 
-    <!-- Run Code Button -->
     <Button
         android:id="@+id/btnRunCode"
         android:layout_width="match_parent"
@@ -81,10 +74,9 @@
         android:text="RUN CODE"
         android:textSize="18sp"
         android:textColor="@color/white"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_button_dark"
         android:padding="12dp" />
 
-    <!-- Output Display -->
     <TextView
         android:id="@+id/tvOutput"
         android:layout_width="match_parent"
@@ -96,7 +88,6 @@
         android:textColor="@color/primary_blue"
         android:padding="12dp" />
 
-    <!-- Submit Button -->
     <Button
         android:id="@+id/btnSubmit"
         android:layout_width="match_parent"
@@ -105,10 +96,9 @@
         android:text="SUBMIT"
         android:textSize="18sp"
         android:textColor="@color/white"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_button_dark"
         android:padding="12dp" />
 
-    <!-- RecyclerView for quiz questions -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewQuestions"
         android:layout_width="match_parent"

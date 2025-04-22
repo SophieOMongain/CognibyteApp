@@ -192,5 +192,4 @@
             android:textColor="@color/white"
             android:textStyle="bold" />
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

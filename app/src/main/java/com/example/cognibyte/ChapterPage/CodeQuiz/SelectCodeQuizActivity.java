@@ -47,7 +47,7 @@ public class SelectCodeQuizActivity extends AppCompatActivity {
             quizButton.setText(quizTitle);
             quizButton.setTextSize(18);
             quizButton.setAllCaps(false);
-            quizButton.setBackgroundResource(R.drawable.rounded_button);
+            quizButton.setBackgroundResource(R.drawable.rounded_button_dark);
             quizButton.setPadding(16, 16, 16, 16);
             quizButton.setTextColor(getResources().getColor(R.color.primary_blue));
 

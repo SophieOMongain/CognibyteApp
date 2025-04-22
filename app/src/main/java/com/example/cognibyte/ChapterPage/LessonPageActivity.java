@@ -2,12 +2,14 @@ package com.example.cognibyte.ChapterPage;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.cognibyte.HomePage.HomeActivity;
 import com.example.cognibyte.Account.LoginActivity;
 import com.example.cognibyte.ChapterPage.Quiz.QuizActivity;
 import com.example.cognibyte.R;
@@ -16,38 +18,36 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LessonPageActivity extends AppCompatActivity {
 
-    private Button btnRetry, btnHome, btnStartQuiz, btnReturnToLessons;
+    private static final String TAG = "LessonPageActivity";
+
     private ProgressBar progressBar;
     private TextView tvLessonTitle, tvLessonContent;
-    private String lessonContent;
-    private String lessonTitle;
-    private int chapterNumber;
-    private String language, skillLevel;
-
+    private ScrollView scrollContainer;
+    private Button btnRetry, btnStartQuiz, btnReturnToLessons, btnHome;
     private FirebaseFirestore firestore;
     private FirebaseAuth mAuth;
-    private static final String TAG = "LessonPageActivity";
+
+    private int chapterNumber;
+    private int lessonNumber;
+    private String language, skillLevel;
+    private String lessonTitle, lessonContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lesson_page);
 
-        btnRetry = findViewById(R.id.btnRetry);
-        btnHome = findViewById(R.id.btnHome);
-        btnStartQuiz = findViewById(R.id.btnStartQuiz);
-        btnReturnToLessons = findViewById(R.id.btnReturnToLessons);
         progressBar = findViewById(R.id.progressBar);
         tvLessonTitle = findViewById(R.id.tvLessonTitle);
         tvLessonContent = findViewById(R.id.tvLessonContent);
+        scrollContainer = findViewById(R.id.scrollContainer);
+        btnRetry = findViewById(R.id.btnRetry);
+        btnStartQuiz = findViewById(R.id.btnStartQuiz);
+        btnReturnToLessons = findViewById(R.id.btnReturnToLessons);
+        btnHome = findViewById(R.id.btnHome);
 
         firestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -60,99 +60,78 @@ public class LessonPageActivity extends AppCompatActivity {
             return;
         }
 
-        chapterNumber = getIntent().getIntExtra("chapterNumber", -1);
-        language = getIntent().getStringExtra("language");
-        lessonTitle = getIntent().getStringExtra("lessonTitle");
-        skillLevel = getIntent().getStringExtra("skillLevel");
+        Intent in = getIntent();
+        lessonTitle = in.getStringExtra("lessonTitle");
+        chapterNumber = in.getIntExtra("chapterNumber", -1);
+        language = in.getStringExtra("language");
+        skillLevel = in.getStringExtra("skillLevel");
 
-        if (lessonTitle == null || lessonTitle.trim().isEmpty() || chapterNumber == -1 || language == null || skillLevel == null) {
-            Toast.makeText(this, "Invalid lesson or chapter parameters.", Toast.LENGTH_LONG).show();
+        if (lessonTitle == null || chapterNumber < 0 || language == null || skillLevel == null) {
+            Toast.makeText(this, "Invalid lesson parameters.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
-        fetchLessonFromFirestore();
+        tvLessonContent.setMovementMethod(new android.text.method.ScrollingMovementMethod());
 
-        btnRetry.setOnClickListener(v -> fetchLessonFromFirestore());
-        btnHome.setOnClickListener(v -> {
-            startActivity(new Intent(LessonPageActivity.this, HomeActivity.class));
-            finish();
-        });
-        btnReturnToLessons.setOnClickListener(v -> markLessonCompleted());
+        btnRetry.setOnClickListener(v -> fetchLesson());
+        btnHome .setOnClickListener(v -> finish());
+        btnReturnToLessons.setOnClickListener(v -> finish());
         btnStartQuiz.setOnClickListener(v -> {
-            if (lessonContent == null || lessonContent.trim().isEmpty()) {
-                Toast.makeText(LessonPageActivity.this, "Cannot start quiz. Lesson content is missing.", Toast.LENGTH_LONG).show();
+            if (lessonContent == null || lessonContent.isEmpty()) {
+                Toast.makeText(this, "Cannot start quiz; content missing.", Toast.LENGTH_LONG).show();
                 return;
             }
-            Intent intent = new Intent(LessonPageActivity.this, QuizActivity.class);
-            intent.putExtra("lessonTitle", lessonTitle);
+            Intent intent = new Intent(this, QuizActivity.class);
             intent.putExtra("chapterNumber", chapterNumber);
-            intent.putExtra("lessonContent", lessonContent);
+            intent.putExtra("lessonNumber", lessonNumber);
             intent.putExtra("language", language);
             intent.putExtra("skillLevel", skillLevel);
+            intent.putExtra("lessonTitle", lessonTitle);
             startActivity(intent);
         });
+
+        btnStartQuiz.setVisibility(View.GONE);
+        fetchLesson();
     }
 
-    private void fetchLessonFromFirestore() {
-        if (language == null || lessonTitle == null || chapterNumber == -1) {
-            Toast.makeText(this, "Required lesson parameters missing.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        progressBar.setVisibility(android.view.View.VISIBLE);
+    private void fetchLesson() {
+        progressBar.setVisibility(View.VISIBLE);
+
         firestore.collection("ChapterContent")
                 .document(language)
                 .collection("Chapters")
                 .whereEqualTo("chapterNumber", chapterNumber)
                 .whereEqualTo("lessonTitle", lessonTitle)
                 .get()
-                .addOnSuccessListener((QuerySnapshot querySnapshot) -> {
-                    progressBar.setVisibility(android.view.View.GONE);
-                    if (!querySnapshot.isEmpty()) {
-                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                        lessonTitle = document.getString("lessonTitle");
-                        lessonContent = document.getString("lessonContent");
-                        if (lessonTitle == null || lessonContent == null) {
-                            Toast.makeText(this, "Lesson data is incomplete.", Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        tvLessonTitle.setText(lessonTitle);
-                        tvLessonContent.setText(lessonContent);
-                        btnStartQuiz.setVisibility(android.view.View.VISIBLE);
-                    } else {
-                        Toast.makeText(this, "Lesson not found. Please contact the admin.", Toast.LENGTH_LONG).show();
+                .addOnSuccessListener((QuerySnapshot qs) -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (qs.isEmpty()) {
+                        Toast.makeText(this, "Lesson not found. Please contact admin.", Toast.LENGTH_LONG).show();
+                        return;
                     }
+                    DocumentSnapshot doc = qs.getDocuments().get(0);
+
+                    Long ln = doc.getLong("lessonNumber");
+                    lessonNumber = (ln != null ? ln.intValue() :  -1);
+
+                    String fetchedTitle   = doc.getString("lessonTitle");
+                    String fetchedContent = doc.getString("lessonContent");
+                    if (fetchedContent == null) {
+                        Toast.makeText(this, "Lesson content incomplete.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    lessonTitle = (fetchedTitle != null ? fetchedTitle : lessonTitle);
+                    lessonContent = fetchedContent;
+                    tvLessonTitle.setText(lessonTitle);
+                    tvLessonContent.setText(lessonContent);
+                    btnStartQuiz .setVisibility(View.VISIBLE);
                 })
                 .addOnFailureListener(e -> {
-                    progressBar.setVisibility(android.view.View.GONE);
-                    Toast.makeText(this, "Error fetching lesson: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    progressBar.setVisibility(View.GONE);
+                    Log.e(TAG, "Error fetching lesson", e);
+                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
-    }
-
-    private void markLessonCompleted() {
-        String userId = mAuth.getCurrentUser().getUid();
-        String docId = "Chapter" + chapterNumber + "_Lesson" + lessonTitle.replaceAll("\\s+", "");
-        Map<String, Object> progressData = new HashMap<>();
-        progressData.put("chapterNumber", chapterNumber);
-        progressData.put("lessonTitle", lessonTitle);
-        progressData.put("progress", true);
-        firestore.collection("UserProgress")
-                .document(userId)
-                .collection("Chapters")
-                .document(docId)
-                .set(progressData)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(LessonPageActivity.this, "Lesson marked as completed!", Toast.LENGTH_SHORT).show();
-                    navigateBackToLessons();
-                })
-                .addOnFailureListener(e -> Toast.makeText(LessonPageActivity.this, "Failed to update lesson progress: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }
-
-    private void navigateBackToLessons() {
-        Intent intent = new Intent(LessonPageActivity.this, LessonActivity.class);
-        intent.putExtra("chapterNumber", chapterNumber);
-        intent.putExtra("language", language);
-        startActivity(intent);
-        finish();
     }
 }
