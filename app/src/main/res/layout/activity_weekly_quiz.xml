@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/light_gray">
 
-    <!-- Header Section -->
     <TextView
         android:id="@+id/tvWeeklyCoding"
         android:layout_width="0dp"
@@ -40,7 +39,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Buttons Section -->
     <Button
         android:id="@+id/btnStartWeeklyQuiz"
         android:layout_width="320dp"
@@ -48,7 +46,7 @@
         android:text="Start weekly\nquliz"
         android:textSize="22sp"
         android:textColor="@color/white"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_button_dark"
         android:paddingVertical="16dp"
         android:layout_marginTop="40dp"
         android:gravity="center"
@@ -75,7 +73,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Bottom Navigation Bar -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"

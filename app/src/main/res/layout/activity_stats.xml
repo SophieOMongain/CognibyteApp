@@ -8,7 +8,6 @@
     android:padding="16dp"
     android:background="@color/background_light_blue">
 
-    <!-- Back Button -->
     <ImageButton
         android:id="@+id/btn_back"
         android:layout_width="48dp"
@@ -19,7 +18,6 @@
         android:layout_gravity="start"
         app:tint="@color/primary_blue" />
 
-    <!-- Title -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,14 +28,12 @@
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <!-- Bar Chart for Lessons Completed per Chapter -->
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/bar_chart_lessons"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Skill Level -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -57,7 +53,6 @@
         android:textColor="@color/dark_gray"
         android:layout_marginBottom="16dp" />
 
-    <!-- Language -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

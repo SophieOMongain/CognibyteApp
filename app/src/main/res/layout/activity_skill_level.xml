@@ -6,7 +6,6 @@
     android:background="#EEF2F5"
     android:gravity="center_horizontal">
 
-    <!-- Exact Top Section with Blue Background -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="80dp"
@@ -17,12 +16,10 @@
         android:textColor="#003366"
         android:background="#b3d9ff" />
 
-    <!-- Space between header and slider -->
     <Space
         android:layout_width="match_parent"
         android:layout_height="40dp"/>
 
-    <!-- SeekBar with BEGINNER to EXPERT -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,7 +28,6 @@
         android:paddingEnd="20dp"
         android:gravity="center_vertical">
 
-        <!-- BEGINNER label -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,7 +36,6 @@
             android:textColor="#003366"
             android:layout_marginEnd="10dp"/>
 
-        <!-- SeekBar -->
         <SeekBar
             android:id="@+id/skill_seekbar"
             android:layout_width="0dp"
@@ -51,7 +46,6 @@
             android:thumbTint="#b3d9ff"
             android:progressTint="#003366"/>
 
-        <!-- EXPERT label -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -61,7 +55,6 @@
             android:layout_marginStart="10dp"/>
     </LinearLayout>
 
-    <!-- INTERMEDIATE centered below the SeekBar -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,7 +65,6 @@
         android:layout_marginBottom="40dp"
         android:layout_gravity="center"/>
 
-    <!-- Level Selected Header -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -81,7 +73,6 @@
         android:textColor="#003366"
         android:layout_marginBottom="10dp"/>
 
-    <!-- Grey box to display selected level -->
     <TextView
         android:id="@+id/skill_level_display"
         android:layout_width="wrap_content"
@@ -95,7 +86,6 @@
         android:backgroundTint="#808080"
         android:gravity="center"/>
 
-    <!-- Save Changes Button -->
     <Button
         android:id="@+id/btn_save_skill"
         android:layout_width="wrap_content"

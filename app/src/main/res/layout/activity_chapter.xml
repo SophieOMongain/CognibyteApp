@@ -7,6 +7,7 @@
     android:background="@color/light_gray">
 
     <LinearLayout
+        android:id="@+id/languageHeader"
         android:layout_width="match_parent"
         android:layout_height="65dp"
         android:background="@color/secondary_blue"
@@ -19,17 +20,16 @@
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:layout_marginStart="12dp"
-            android:src="@drawable/javascript_icon"/>
+            android:contentDescription="Language logo"
+            android:src="@drawable/javascript_icon" />
 
-        <TextView
-            android:id="@+id/tvLanguageName"
+        <Spinner
+            android:id="@+id/spinnerLanguage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="JavaScript"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@color/primary_blue"
-            android:layout_marginStart="6dp"/>
+            android:spinnerMode="dropdown"
+            android:layout_marginStart="6dp"
+            android:popupBackground="@color/white"/>
     </LinearLayout>
 
     <LinearLayout
@@ -45,8 +45,8 @@
             android:layout_width="300dp"
             android:layout_height="80dp"
             android:text="Chapter 1"
-            android:background="@drawable/rounded_button"
-            android:textColor="@color/primary_blue"
+            android:background="@drawable/rounded_button_dark"
+            android:textColor="@color/light_gray"
             android:textSize="22sp"
             android:textStyle="bold"/>
 
@@ -55,8 +55,8 @@
             android:layout_width="300dp"
             android:layout_height="80dp"
             android:text="Chapter 2"
-            android:background="@drawable/rounded_button"
-            android:textColor="@color/primary_blue"
+            android:background="@drawable/rounded_button_dark"
+            android:textColor="@color/light_gray"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginTop="25dp"/>
@@ -66,8 +66,8 @@
             android:layout_width="300dp"
             android:layout_height="80dp"
             android:text="Chapter 3"
-            android:background="@drawable/rounded_button"
-            android:textColor="@color/primary_blue"
+            android:background="@drawable/rounded_button_dark"
+            android:textColor="@color/light_gray"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginTop="25dp"/>
@@ -77,8 +77,8 @@
             android:layout_width="300dp"
             android:layout_height="80dp"
             android:text="Chapter 4"
-            android:background="@drawable/rounded_button"
-            android:textColor="@color/primary_blue"
+            android:background="@drawable/rounded_button_dark"
+            android:textColor="@color/light_gray"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginTop="25dp"/>
@@ -104,21 +104,20 @@
             android:layout_width="54dp"
             android:layout_height="56dp"
             android:layout_marginEnd="40dp"
-            android:src="@drawable/code_icon2" />
+            android:src="@drawable/code_icon2"/>
 
         <ImageView
             android:id="@+id/btnStats"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/stats"
-            android:layout_marginEnd="40dp"/>
+            android:layout_marginEnd="40dp"
+            android:src="@drawable/stats" />
 
         <ImageView
             android:id="@+id/btnProfile"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/profile"
-            android:layout_marginEnd="40dp"/>
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/profile" />
     </LinearLayout>
-
 </LinearLayout>

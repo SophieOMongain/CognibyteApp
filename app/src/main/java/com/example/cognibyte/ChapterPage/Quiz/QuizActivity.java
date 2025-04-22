@@ -2,54 +2,44 @@ package com.example.cognibyte.ChapterPage.Quiz;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.cognibyte.Account.LoginActivity;
 import com.example.cognibyte.ChapterPage.LessonActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import com.google.firebase.firestore.*;
+import java.util.*;
 import models.Question;
-import models.Quiz;
 import models.QuizAttempt;
 import models.UserQuizDatabaseHelper;
 
 public class QuizActivity extends AppCompatActivity {
 
+    private static final String TAG = "QuizActivity";
+    private ProgressBar progressBar;
     private TextView tvQuestion, tvCorrectAnswer, tvExplanation, tvWrongQuestions;
     private RadioGroup rgOptions;
     private Button btnSubmit, btnNext, btnBack, btnReturnToLessons, btnCompleteLesson, btnRetryQuiz;
-    private int currentQuestionIndex = 0, score = 0;
-    private List<Question> quizQuestions;
+    private List<Question> quizQuestions  = new ArrayList<>();
     private List<Question> wrongQuestions = new ArrayList<>();
-    private int lessonNumber, chapterNumber;
-    private String language, skillLevel;
+    private int currentQuestionIndex = 0;
+    private int score = 0;
+    private String language, skillLevel, lessonTitle;
+    private int chapterNumber, lessonNumber;
     private FirebaseFirestore firestore;
     private FirebaseUser user;
-    private String correctAnswer;
-    private static final String TAG = "QuizActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
+        progressBar = findViewById(R.id.progressBar);
         tvQuestion = findViewById(R.id.tvQuestion);
         tvCorrectAnswer = findViewById(R.id.tvCorrectAnswer);
         tvExplanation = findViewById(R.id.tvExplanation);
@@ -61,102 +51,102 @@ public class QuizActivity extends AppCompatActivity {
         btnReturnToLessons = findViewById(R.id.btnReturnToLessons);
         btnCompleteLesson = findViewById(R.id.btnCompleteLesson);
         btnRetryQuiz = findViewById(R.id.btnRetryQuiz);
-
         firestore = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
+
         if (user == null) {
-            Toast.makeText(this, "You must be logged in.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please log in first.", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
 
         language = getIntent().getStringExtra("language");
         skillLevel = getIntent().getStringExtra("skillLevel");
-        lessonNumber = getIntent().getIntExtra("lessonNumber", -1);
         chapterNumber = getIntent().getIntExtra("chapterNumber", -1);
-        if (lessonNumber == -1 || chapterNumber == -1 || language == null || skillLevel == null) {
-            Log.e(TAG, "Missing required quiz data: language=" + language + ", skillLevel=" + skillLevel +
-                    ", lessonNumber=" + lessonNumber + ", chapterNumber=" + chapterNumber);
+        lessonNumber = getIntent().getIntExtra("lessonNumber", -1);
+        lessonTitle = getIntent().getStringExtra("lessonTitle");
+
+        if (language == null || skillLevel == null || chapterNumber < 0 || lessonNumber < 0 || lessonTitle == null) {
+            Log.e(TAG, "Missing quiz params: " + "lang=" + language + " lvl=" + skillLevel + " ch#=" + chapterNumber + " les#=" + lessonNumber + " title=" + lessonTitle);
+
             Toast.makeText(this, "Error: Missing quiz data.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
-        Log.d(TAG, "Starting quiz for " + language + " - Lesson " + lessonNumber +
-                " Chapter " + chapterNumber + " (" + skillLevel + ")");
-
+        tvExplanation.setMovementMethod(new ScrollingMovementMethod());
         btnBack.setOnClickListener(v -> finish());
-
-        btnCompleteLesson.setOnClickListener(v -> completeLesson());
-
-        btnReturnToLessons.setOnClickListener(v -> {
-            Toast.makeText(QuizActivity.this, "Returned to lesson page", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(QuizActivity.this, LessonActivity.class);
-            intent.putExtra("chapterNumber", chapterNumber);
-            intent.putExtra("language", language);
-            intent.putExtra("skillLevel", skillLevel);
-            startActivity(intent);
-            finish();
-        });
-
-        btnRetryQuiz.setOnClickListener(v -> {
-            currentQuestionIndex = 0;
-            score = 0;
-            wrongQuestions.clear();
-            tvWrongQuestions.setText("");
-            rgOptions.setVisibility(View.VISIBLE);
-            tvCorrectAnswer.setVisibility(View.GONE);
-            tvExplanation.setVisibility(View.GONE);
-            btnSubmit.setVisibility(View.VISIBLE);
-            btnNext.setVisibility(View.GONE);
-            btnCompleteLesson.setVisibility(View.GONE);
-            btnRetryQuiz.setVisibility(View.GONE);
-            btnReturnToLessons.setVisibility(View.GONE);
-            showNextQuestion();
-        });
-
-        loadQuiz();
-
+        btnReturnToLessons.setOnClickListener(v -> finish());
         btnSubmit.setOnClickListener(v -> checkAnswer());
+
         btnNext.setOnClickListener(v -> {
             currentQuestionIndex++;
             showNextQuestion();
         });
+        btnRetryQuiz.setOnClickListener(v -> resetQuiz());
+        btnCompleteLesson.setOnClickListener(v -> completeLesson());
+        btnNext.setVisibility(View.GONE);
+        btnCompleteLesson.setVisibility(View.GONE);
+        btnRetryQuiz.setVisibility(View.GONE);
+        btnReturnToLessons.setVisibility(View.GONE);
+
+        loadQuizFromSubcollection();
     }
 
-    private void loadQuiz() {
-        if (language == null || lessonNumber == -1 || skillLevel == null) {
-            Log.e(TAG, "Cannot load quiz: Missing required data.");
-            Toast.makeText(this, "Error: Missing required quiz details.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void loadQuizFromSubcollection() {
+        progressBar.setVisibility(View.VISIBLE);
+
         firestore.collection("QuizContent")
                 .document(language)
                 .collection("Quizzes")
                 .whereEqualTo("chapterNumber", chapterNumber)
-                .whereEqualTo("lessonNumber", lessonNumber)
-                .whereEqualTo("skillLevel", skillLevel)
+                .whereEqualTo("lessonNumber",  lessonNumber)
+                .whereEqualTo("skillLevel",    skillLevel)
                 .get()
-                .addOnSuccessListener((QuerySnapshot querySnapshot) -> {
-                    if (!querySnapshot.isEmpty()) {
-                        DocumentSnapshot document = querySnapshot.getDocuments().get(0);
-                        Quiz quiz = document.toObject(Quiz.class);
-                        if (quiz != null && quiz.getQuestions() != null && quiz.getQuestions().size() >= 5) {
-                            Collections.shuffle(quiz.getQuestions());
-                            quizQuestions = quiz.getQuestions().subList(0, 5);
-                            showNextQuestion();
-                        } else {
-                            Log.e(TAG, "Not enough questions available in Firestore.");
-                            Toast.makeText(this, "Not enough questions available!", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Log.e(TAG, "Quiz document not found in Firestore.");
-                        Toast.makeText(this, "Quiz not found!", Toast.LENGTH_SHORT).show();
+                .addOnSuccessListener(qs -> {
+                    if (qs.isEmpty()) {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(this, "Quiz not found!", Toast.LENGTH_LONG).show();
+                        return;
                     }
+                    String quizId = qs.getDocuments().get(0).getId();
+
+                    firestore.collection("QuizContent")
+                            .document(language)
+                            .collection("Quizzes")
+                            .document(quizId)
+                            .collection("Questions")
+                            .get()
+                            .addOnSuccessListener(qs2 -> {
+                                progressBar.setVisibility(View.GONE);
+                                if (qs2.isEmpty()) {
+                                    Toast.makeText(this, "No questions available.", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                                quizQuestions.clear();
+                                for (DocumentSnapshot d : qs2.getDocuments()) {
+                                    Question q = d.toObject(Question.class);
+                                    if (q != null) quizQuestions.add(q);
+                                }
+                                if (quizQuestions.size() < 5) {
+                                    Toast.makeText(this, "Not enough questions!", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                                Collections.shuffle(quizQuestions);
+                                quizQuestions = quizQuestions.subList(0, 5);
+                                showNextQuestion();
+                            })
+                            .addOnFailureListener(e -> {
+                                progressBar.setVisibility(View.GONE);
+                                Log.e(TAG, "Error loading Questions sub‑collec.", e);
+                                Toast.makeText(this, "Error loading quiz: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading quiz from Firestore: " + e.getMessage());
-                    Toast.makeText(this, "Error loading quiz: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                    Log.e(TAG, "Error finding quiz doc", e);
+                    Toast.makeText(this, "Error loading quiz: "+e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -165,127 +155,107 @@ public class QuizActivity extends AppCompatActivity {
             showFinalScore();
             return;
         }
-        Question currentQuestion = quizQuestions.get(currentQuestionIndex);
-        tvQuestion.setText(currentQuestion.getQuestion());
-        List<String> options = currentQuestion.getOptions();
+        Question q = quizQuestions.get(currentQuestionIndex);
+        tvQuestion.setText(q.getQuestion());
+
         rgOptions.removeAllViews();
-        correctAnswer = currentQuestion.getAnswer();
-        Collections.shuffle(options);
-        for (String option : options) {
+        List<String> opts = new ArrayList<>(q.getOptions());
+        Collections.shuffle(opts);
+        for (String o : opts) {
             RadioButton rb = new RadioButton(this);
-            rb.setText(option);
-            rb.setId(View.generateViewId());
+            rb.setText(o);
             rgOptions.addView(rb);
         }
+
         tvCorrectAnswer.setVisibility(View.GONE);
-        tvExplanation.setVisibility(View.GONE);
-        btnSubmit.setVisibility(View.VISIBLE);
-        btnNext.setVisibility(View.GONE);
+        tvExplanation .setVisibility(View.GONE);
+        btnSubmit .setVisibility(View.VISIBLE);
+        btnNext .setVisibility(View.GONE);
     }
 
     private void checkAnswer() {
-        int selectedId = rgOptions.getCheckedRadioButtonId();
-        if (selectedId == -1) {
+        int sel = rgOptions.getCheckedRadioButtonId();
+        if (sel < 0) {
             Toast.makeText(this, "Please select an answer!", Toast.LENGTH_SHORT).show();
             return;
         }
-        RadioButton selected = findViewById(selectedId);
-        String selectedAnswer = selected.getText().toString().trim().toLowerCase();
-        String correctAnswerNormalized = correctAnswer.trim().toLowerCase();
-        Log.d(TAG, "User selected: " + selectedAnswer);
-        Log.d(TAG, "Correct answer: " + correctAnswerNormalized);
-        if (selectedAnswer.equals(correctAnswerNormalized)) {
+        String chosen = ((RadioButton)findViewById(sel)).getText().toString();
+        Question cur  = quizQuestions.get(currentQuestionIndex);
+        if (chosen.equalsIgnoreCase(cur.getAnswer())) {
             score++;
         } else {
-            wrongQuestions.add(quizQuestions.get(currentQuestionIndex));
+            wrongQuestions.add(cur);
         }
-        tvCorrectAnswer.setText("Correct Answer: " + correctAnswer);
+
+        tvCorrectAnswer.setText("Answer: " + cur.getAnswer());
         tvCorrectAnswer.setVisibility(View.VISIBLE);
-        tvExplanation.setText(quizQuestions.get(currentQuestionIndex).getExplanation());
+        tvExplanation.setText(cur.getExplanation());
         tvExplanation.setVisibility(View.VISIBLE);
         btnSubmit.setVisibility(View.GONE);
-        btnNext.setVisibility(View.VISIBLE);
+        btnNext .setVisibility(View.VISIBLE);
     }
 
     private void showFinalScore() {
-        String resultMessage = "Quiz Complete! Score: " + score + "/" + quizQuestions.size();
-        tvQuestion.setText(resultMessage);
+        tvQuestion.setText("Quiz complete! Score: " + score + "/" + quizQuestions.size());
         rgOptions.setVisibility(View.GONE);
         tvCorrectAnswer.setVisibility(View.GONE);
         tvExplanation.setVisibility(View.GONE);
+
         if (!wrongQuestions.isEmpty()) {
-            StringBuilder wrongDisplay = new StringBuilder("You got these questions wrong:\n\n");
-            for (Question q : wrongQuestions) {
-                wrongDisplay.append("Q: ").append(q.getQuestion()).append("\n")
-                        .append("Correct Answer: ").append(q.getAnswer()).append("\n\n");
+            StringBuilder sb = new StringBuilder("You got wrong:\n");
+            for (Question w : wrongQuestions) {
+                sb.append("- ").append(w.getQuestion())
+                        .append("\n  Ans: ").append(w.getAnswer())
+                        .append("\n\n");
             }
-            tvWrongQuestions.setText(wrongDisplay.toString());
-            tvWrongQuestions.setVisibility(View.VISIBLE);
-        } else {
-            tvWrongQuestions.setText("Congratulations! You answered all questions correctly.");
+            tvWrongQuestions.setText(sb.toString());
             tvWrongQuestions.setVisibility(View.VISIBLE);
         }
-        btnSubmit.setVisibility(View.GONE);
-        btnNext.setVisibility(View.GONE);
-        btnRetryQuiz.setVisibility(View.VISIBLE);
-        btnCompleteLesson.setText("Complete Lesson");
+
+        btnNext .setVisibility(View.GONE);
+        btnRetryQuiz .setVisibility(View.VISIBLE);
         btnCompleteLesson.setVisibility(View.VISIBLE);
         btnReturnToLessons.setVisibility(View.VISIBLE);
+
         QuizAttempt attempt = new QuizAttempt(quizQuestions, wrongQuestions, score);
-        String quizIdentifier = "quiz" + lessonNumber;
-        UserQuizDatabaseHelper dbHelper = new UserQuizDatabaseHelper();
-        dbHelper.saveQuizAttemptForQuiz(chapterNumber, quizIdentifier, attempt, new UserQuizDatabaseHelper.SaveCallback() {
-            @Override
-            public void onSuccess() {
-                Log.d(TAG, "Quiz attempt saved successfully.");
-            }
-            @Override
-            public void onFailure(String error) {
-                Log.e(TAG, "Failed to save quiz attempt: " + error);
-            }
-        });
+        String quizName = "lesson" + lessonNumber;
+        new UserQuizDatabaseHelper()
+                .saveQuizAttemptForQuiz(chapterNumber, quizName, attempt, new UserQuizDatabaseHelper.SaveCallback() {
+                    @Override public void onSuccess()  { Log.d(TAG,"Saved quiz attempt"); }
+                    @Override public void onFailure(String err) { Log.e(TAG,"Save failed: "+err); }
+                });
+    }
+
+    private void resetQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        wrongQuestions.clear();
+        tvWrongQuestions.setVisibility(View.GONE);
+        rgOptions.setVisibility(View.VISIBLE);
+        btnRetryQuiz.setVisibility(View.GONE);
+        btnCompleteLesson.setVisibility(View.GONE);
+        btnReturnToLessons.setVisibility(View.GONE);
+        showNextQuestion();
     }
 
     private void completeLesson() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Toast.makeText(QuizActivity.this, "User not logged in.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String userId = currentUser.getUid();
-        firestore.collection("ChapterContent")
-                .document(language)
-                .collection("Chapters")
-                .whereEqualTo("chapterNumber", chapterNumber)
-                .whereEqualTo("lessonNumber", lessonNumber)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    if (!querySnapshot.isEmpty()) {
-                        DocumentSnapshot chapterDoc = querySnapshot.getDocuments().get(0);
-                        String chapterId = chapterDoc.getId();
-                        Map<String, Object> progressData = new HashMap<>();
-                        progressData.put("chapterNumber", chapterNumber);
-                        progressData.put("lessonNumber", lessonNumber);
-                        progressData.put("progress", true);
+        Map<String,Object> data = new HashMap<>();
+        data.put("chapterNumber", chapterNumber);
+        data.put("lessonNumber", lessonNumber);
+        data.put("progress", true);
 
-                        firestore.collection("UserProgress")
-                                .document(userId)
-                                .collection("Chapters")
-                                .document(chapterId)
-                                .set(progressData)
-                                .addOnSuccessListener(aVoid -> {
-                                    Intent intent = new Intent(QuizActivity.this, LessonActivity.class);
-                                    intent.putExtra("chapterNumber", chapterNumber);
-                                    intent.putExtra("language", language);
-                                    intent.putExtra("skillLevel", skillLevel);
-                                    startActivity(intent);
-                                    finish();
-                                })
-                                .addOnFailureListener(e -> Toast.makeText(QuizActivity.this, "Failed to update lesson progress: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                    } else {
-                        Toast.makeText(QuizActivity.this, "Chapter data not found. Please contact the admin.", Toast.LENGTH_SHORT).show();
-                    }
+        firestore.collection("UserProgress")
+                .document(user.getUid())
+                .collection("Chapters")
+                .document(String.valueOf(lessonNumber))
+                .set(data)
+                .addOnSuccessListener(v -> {
+                    startActivity(new Intent(this, LessonActivity.class)
+                            .putExtra("chapterNumber", chapterNumber));
+                    finish();
                 })
-                .addOnFailureListener(e -> Toast.makeText(QuizActivity.this, "Error fetching chapter data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Couldn’t complete lesson: "+e.getMessage(),
+                                Toast.LENGTH_LONG).show());
     }
 }

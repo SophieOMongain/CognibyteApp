@@ -125,7 +125,7 @@
         android:textColor="@color/white"
         android:fontFamily="sans-serif"
         android:textSize="18sp"
-        android:background="@drawable/rounded_button" />
+        android:background="@drawable/rounded_button_dark" />
 
     <Button
         android:id="@+id/btn_back"
@@ -137,7 +137,7 @@
         android:fontFamily="sans-serif"
         android:textSize="18sp"
         android:layout_gravity="end"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_button_dark"
         android:layout_marginTop="16dp" />
 
 </LinearLayout>

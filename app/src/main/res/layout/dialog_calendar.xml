@@ -7,7 +7,6 @@
     android:padding="16dp"
     android:background="@android:color/white">
 
-    <!-- Dialog Title -->
     <TextView
         android:id="@+id/dialogTitle"
         android:layout_width="wrap_content"
@@ -18,7 +17,6 @@
         android:layout_gravity="center_horizontal"
         android:paddingBottom="10dp"/>
 
-    <!-- Calendar View for Streak Tracking -->
     <CalendarView
         android:id="@+id/streakCalendarView"
         android:layout_width="match_parent"
@@ -26,7 +24,6 @@
         android:dateTextAppearance="@android:style/TextAppearance.Medium"
         android:padding="8dp"/>
 
-    <!-- Close Button for Dismissal -->
     <Button
         android:id="@+id/closeDialogButton"
         android:layout_width="wrap_content"
