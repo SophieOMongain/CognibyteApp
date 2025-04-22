@@ -18,7 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-//this is a test to check if github is working
+
 public class CreateAccountActivity extends AppCompatActivity {
 
     private EditText etName, etEmail, etUsername, etPassword, etDateOfBirth;
