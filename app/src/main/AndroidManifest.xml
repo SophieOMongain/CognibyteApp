@@ -59,7 +59,7 @@
 
         <!-- stats Activity -->
         <activity
-            android:name=".HomePage.StatsActivity"
+            android:name=".HomePage.Stats.StatsActivity"
             android:exported="true" />
 
         <!-- lesson Activity -->
@@ -120,10 +120,6 @@
             android:name=".Admin.ViewChapterContentActivity"
             android:exported="true" />
 
-        <!-- select Generate quiz Activity -->
-        <activity
-            android:name=".Admin.GenerateQuizActivity"
-            android:exported="true" />
 
         <activity
             android:name=".Admin.ViewQuizContentActivity"
@@ -167,6 +163,21 @@
         <!--  Recap Quiz Page -->
         <activity
             android:name=".HomePage.Recap.QuizRecapActivity"
+            android:exported="true" />
+
+        <!--  stats Page -->
+        <activity
+            android:name=".HomePage.Stats.StatsPageActivity"
+            android:exported="true" />
+
+        <!-- quiz stats Page -->
+        <activity
+            android:name=".HomePage.Stats.QuizStatsActivity"
+            android:exported="true" />
+
+        <!-- manage language Page -->
+        <activity
+            android:name=".HomePage.ManageLanguageActivity"
             android:exported="true" />
     </application>
 

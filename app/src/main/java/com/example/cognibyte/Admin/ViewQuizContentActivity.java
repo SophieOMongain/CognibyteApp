@@ -31,12 +31,10 @@ public class ViewQuizContentActivity extends AppCompatActivity {
     private Button btnSelect, btnEdit, btnSave;
     private RecyclerView rvQuestions;
     private FirebaseFirestore firestore;
-
-    private String selectedLanguage  = "";
+    private String selectedLanguage = "";
     private String selectedSkillLevel = "";
-    private String selectedChapter   = "";
-    private String selectedLesson    = "";
-
+    private String selectedChapter = "";
+    private String selectedLesson = "";
     private LessonTextAdapter readAdapter;
     private EditLessonTextAdapter editAdapter;
     private boolean isEditMode = false;
@@ -65,7 +63,9 @@ public class ViewQuizContentActivity extends AppCompatActivity {
 
         String[] languages = {"Java", "Javascript", "HTML", "Python"};
         ArrayAdapter<String> langAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_dropdown_item, languages
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                languages
         );
         spinnerLanguage.setAdapter(langAdapter);
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -78,7 +78,9 @@ public class ViewQuizContentActivity extends AppCompatActivity {
 
         String[] skills = {"Beginner", "Intermediate", "Expert"};
         ArrayAdapter<String> skillAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_dropdown_item, skills
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                skills
         );
 
         spinnerSkillLevel.setAdapter(skillAdapter);
@@ -91,7 +93,7 @@ public class ViewQuizContentActivity extends AppCompatActivity {
 
         spinnerChapter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                selectedChapter = (String)p.getItemAtPosition(pos);
+                selectedChapter = (String) p.getItemAtPosition(pos);
                 loadLessonTitles(selectedChapter);
             }
             @Override public void onNothingSelected(AdapterView<?> p) {}
@@ -99,13 +101,12 @@ public class ViewQuizContentActivity extends AppCompatActivity {
 
         spinnerLesson.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                selectedLesson = (String)p.getItemAtPosition(pos);
+                selectedLesson = (String) p.getItemAtPosition(pos);
             }
             @Override public void onNothingSelected(AdapterView<?> p) {}
         });
 
         btnBack.setOnClickListener(v -> finish());
-
         btnSelect.setOnClickListener(v -> {
             if (selectedLanguage.isEmpty() || selectedSkillLevel.isEmpty() || selectedChapter.isEmpty() || selectedLesson.isEmpty()) {
                 Toast.makeText(this,
@@ -148,9 +149,7 @@ public class ViewQuizContentActivity extends AppCompatActivity {
                                     currentDisplay.clear();
                                     for (DocumentSnapshot qSnap : qs2.getDocuments()) {
                                         String question = qSnap.getString("question");
-                                        if (question != null) {
-                                            currentDisplay.add(question);
-                                        }
+                                        if (question != null) currentDisplay.add(question);
                                     }
                                     isEditMode = false;
                                     readAdapter = new LessonTextAdapter(currentDisplay);
@@ -188,10 +187,7 @@ public class ViewQuizContentActivity extends AppCompatActivity {
 
         btnSave.setOnClickListener(v -> {
             if (!isEditMode || currentQuizRef == null) {
-                Toast.makeText(this,
-                        "Nothing to save",
-                        Toast.LENGTH_SHORT
-                ).show();
+                Toast.makeText(this, "Nothing to save", Toast.LENGTH_SHORT).show();
                 return;
             }
             List<String> updated = editAdapter.getItems();
@@ -201,10 +197,7 @@ public class ViewQuizContentActivity extends AppCompatActivity {
 
             currentQuizRef.update(updates)
                     .addOnSuccessListener(a -> {
-                        Toast.makeText(this,
-                                "Quiz updated successfully",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                        Toast.makeText(this, "Quiz updated successfully", Toast.LENGTH_SHORT).show();
                         currentDisplay.clear();
                         currentDisplay.addAll(updated);
                         readAdapter = new LessonTextAdapter(currentDisplay);
@@ -212,11 +205,12 @@ public class ViewQuizContentActivity extends AppCompatActivity {
                         isEditMode = false;
                         btnEdit.setText("Edit");
                     })
-                    .addOnFailureListener(e -> Toast.makeText(
-                            this,
-                            "Failed to save quiz: " + e.getMessage(),
-                            Toast.LENGTH_SHORT
-                    ).show());
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this,
+                                    "Failed to save quiz: " + e.getMessage(),
+                                    Toast.LENGTH_SHORT
+                            ).show()
+                    );
         });
     }
 
@@ -235,11 +229,12 @@ public class ViewQuizContentActivity extends AppCompatActivity {
                             this, android.R.layout.simple_spinner_dropdown_item, chapters
                     ));
                 })
-                .addOnFailureListener(e -> Toast.makeText(
-                        this,
-                        "Error loading chapters: " + e.getMessage(),
-                        Toast.LENGTH_SHORT
-                ).show());
+                .addOnFailureListener(e ->
+                        Toast.makeText(this,
+                                "Error loading chapters: " + e.getMessage(),
+                                Toast.LENGTH_SHORT
+                        ).show()
+                );
     }
 
     private void loadLessonTitles(String chapterTitle) {
@@ -258,10 +253,11 @@ public class ViewQuizContentActivity extends AppCompatActivity {
                             this, android.R.layout.simple_spinner_dropdown_item, lessons
                     ));
                 })
-                .addOnFailureListener(e -> Toast.makeText(
-                        this,
-                        "Error loading lessons: " + e.getMessage(),
-                        Toast.LENGTH_SHORT
-                ).show());
+                .addOnFailureListener(e ->
+                        Toast.makeText(this,
+                                "Error loading lessons: " + e.getMessage(),
+                                Toast.LENGTH_SHORT
+                        ).show()
+                );
     }
 }

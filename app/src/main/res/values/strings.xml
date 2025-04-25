@@ -1,14 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Cognibyte</string>
+
+    <string name="back">Back</string>
+    <string name="quiz_stats">Quiz Stats</string>
+    <string name="overall_accuracy">Overall Accuracy:</string>
+    <string name="lesson_stats">Lesson Stats</string>
+    <string name="quiz_stats_option">Quiz Stats</string>
+
+    <string name="select_programming_language">Select Programming Language</string>
+    <string name="select_chapter">Select Chapter</string>
+    <string name="select_lesson">Select Lesson</string>
+    <string name="select_attempt">Select Attempt</string>
+
+    <string name="select_language">Select Language</string>
+
+    <string name="manage_language">Manage Language</string>
+    <string name="your_languages">Your Languages</string>
+    <string name="add_language">Add Language</string>
+    <string name="add_a_language">Add a Language</string>
 
     <string-array name="programming_languages">
         <item>Java</item>
         <item>Python</item>
-        <item>C++</item>
+        <item>HTML</item>
         <item>JavaScript</item>
     </string-array>
-
-    <string name="select_chapter">Select Chapter</string>
-    <string name="select_lesson">Select Lesson</string>
-    <string name="back">Back</string>
 </resources>

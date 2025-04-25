@@ -1,16 +1,15 @@
-package com.example.cognibyte.HomePage;
+package com.example.cognibyte.HomePage.Stats;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
+import com.example.cognibyte.HomePage.HomeActivity;
 import com.example.cognibyte.R;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -18,23 +17,16 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.firebase.firestore.*;
+import java.util.*;
 
 public class StatsActivity extends AppCompatActivity {
 
     private BarChart barChartLessons;
     private EditText etLevel, etLanguage;
-    private ImageButton btnBack;
-
+    private ImageView btnBack;
     private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
-
     private static final String TAG = "StatsActivity";
 
     @Override
@@ -44,12 +36,10 @@ public class StatsActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
-
         barChartLessons = findViewById(R.id.bar_chart_lessons);
         etLevel = findViewById(R.id.et_level);
         etLanguage = findViewById(R.id.et_language);
         btnBack = findViewById(R.id.btn_back);
-
         barChartLessons.setNoDataText("No data for the chart yet!");
         barChartLessons.setBackgroundColor(Color.WHITE);
         barChartLessons.getDescription().setEnabled(false);
@@ -104,59 +94,34 @@ public class StatsActivity extends AppCompatActivity {
         String uid = mAuth.getCurrentUser().getUid();
         Log.d(TAG, "Loading lesson progress for UID: " + uid);
 
-        firestore.collection("LessonProgress").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    Log.d(TAG, "LessonProgress doc exists? " + documentSnapshot.exists());
-                    Log.d(TAG, "LessonProgress doc data: " + documentSnapshot.getData());
-
-                    if (!documentSnapshot.exists()) {
-                        Toast.makeText(StatsActivity.this, "No lesson progress data found.", Toast.LENGTH_SHORT).show();
-                        barChartLessons.clear();
-                        barChartLessons.setNoDataText("No lessons completed yet!");
-                        return;
-                    }
-
-                    Map<String, Object> progressData = documentSnapshot.getData();
-                    if (progressData == null || progressData.isEmpty()) {
-                        Toast.makeText(StatsActivity.this, "No lesson progress data found.", Toast.LENGTH_SHORT).show();
-                        barChartLessons.clear();
-                        barChartLessons.setNoDataText("No lessons completed yet!");
-                        return;
-                    }
-
+        firestore.collection("UserProgress")
+                .document(uid)
+                .collection("Chapters")
+                .get()
+                .addOnSuccessListener(qs -> {
                     Map<Integer, Integer> chapterLessonCount = new HashMap<>();
-                    for (Map.Entry<String, Object> entry : progressData.entrySet()) {
-                        String key = entry.getKey();
-                        if (key.matches("Chapter\\d+_Lesson\\d+")) {
-                            String[] parts = key.split("_");
-                            if (parts.length == 2) {
-                                String chapterPart = parts[0];
-                                String chapterNumStr = chapterPart.replace("Chapter", "");
-                                try {
-                                    int chapterNum = Integer.parseInt(chapterNumStr);
-                                    Boolean finished = (Boolean) entry.getValue();
-                                    if (finished != null && finished) {
-                                        int count = chapterLessonCount.getOrDefault(chapterNum, 0);
-                                        chapterLessonCount.put(chapterNum, count + 1);
-                                    }
-                                } catch (NumberFormatException e) {
-                                    Log.e(TAG, "Error parsing chapter number from key: " + key, e);
-                                }
-                            }
+
+                    for (DocumentSnapshot doc : qs.getDocuments()) {
+                        Boolean isDone = doc.getBoolean("progress");
+                        Long chapterNum = doc.getLong("chapterNumber");
+
+                        if (Boolean.TRUE.equals(isDone) && chapterNum != null) {
+                            int num = chapterNum.intValue();
+                            chapterLessonCount.put(num, chapterLessonCount.getOrDefault(num, 0) + 1);
                         }
                     }
 
                     List<BarEntry> entries = new ArrayList<>();
-                    for (Map.Entry<Integer, Integer> e : chapterLessonCount.entrySet()) {
-                        entries.add(new BarEntry(e.getKey(), e.getValue()));
+
+                    for (Map.Entry<Integer, Integer> entry : chapterLessonCount.entrySet()) {
+                        entries.add(new BarEntry(entry.getKey(), entry.getValue()));
                     }
 
-                    Collections.sort(entries, (a, b) -> Float.compare(a.getX(), b.getX()));
+                    entries.sort(Comparator.comparing(BarEntry::getX));
 
                     if (!entries.isEmpty()) {
                         BarDataSet dataSet = new BarDataSet(entries, "Lessons Completed");
                         dataSet.setColor(ContextCompat.getColor(this, R.color.primary_blue));
-
                         BarData barData = new BarData(dataSet);
                         barData.setBarWidth(0.9f);
 
@@ -178,7 +143,7 @@ public class StatsActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(StatsActivity.this, "Error loading data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Error loading data from LessonProgress: ", e);
+                    Log.e(TAG, "Error loading data from UserProgress: ", e);
                     barChartLessons.clear();
                     barChartLessons.setNoDataText("Error loading data!");
                 });

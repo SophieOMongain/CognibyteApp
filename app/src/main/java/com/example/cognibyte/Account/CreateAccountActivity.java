@@ -7,14 +7,11 @@ import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +30,6 @@ public class CreateAccountActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
-
         etName = findViewById(R.id.et_name);
         etEmail = findViewById(R.id.et_email);
         etUsername = findViewById(R.id.et_username);
@@ -41,9 +37,7 @@ public class CreateAccountActivity extends AppCompatActivity {
         etDateOfBirth = findViewById(R.id.et_DateOfBirth);
         btnCreateAccount = findViewById(R.id.btn_create_account);
         btnBack = findViewById(R.id.btn_back);
-
         etDateOfBirth.setOnClickListener(v -> showDatePickerDialog());
-
         btnCreateAccount.setOnClickListener(v -> createAccount());
 
         btnBack.setOnClickListener(v -> {
@@ -93,7 +87,6 @@ public class CreateAccountActivity extends AppCompatActivity {
                             userMap.put("email", email);
                             userMap.put("username", username);
                             userMap.put("dateOfBirth", dateOfBirth);
-
                             userMap.put("role", "user");
 
                             firestore.collection("Users").document(uid).set(userMap)
@@ -114,8 +107,3 @@ public class CreateAccountActivity extends AppCompatActivity {
                 });
     }
 }
-
-
-
-
-

@@ -25,7 +25,7 @@ public class QuizActivity extends AppCompatActivity {
     private TextView tvQuestion, tvCorrectAnswer, tvExplanation, tvWrongQuestions;
     private RadioGroup rgOptions;
     private Button btnSubmit, btnNext, btnBack, btnReturnToLessons, btnCompleteLesson, btnRetryQuiz;
-    private List<Question> quizQuestions  = new ArrayList<>();
+    private List<Question> quizQuestions = new ArrayList<>();
     private List<Question> wrongQuestions = new ArrayList<>();
     private int currentQuestionIndex = 0;
     private int score = 0;
@@ -68,8 +68,7 @@ public class QuizActivity extends AppCompatActivity {
         lessonTitle = getIntent().getStringExtra("lessonTitle");
 
         if (language == null || skillLevel == null || chapterNumber < 0 || lessonNumber < 0 || lessonTitle == null) {
-            Log.e(TAG, "Missing quiz params: " + "lang=" + language + " lvl=" + skillLevel + " ch#=" + chapterNumber + " les#=" + lessonNumber + " title=" + lessonTitle);
-
+            Log.e(TAG, "Missing quiz params");
             Toast.makeText(this, "Error: Missing quiz data.", Toast.LENGTH_LONG).show();
             finish();
             return;
@@ -79,13 +78,13 @@ public class QuizActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
         btnReturnToLessons.setOnClickListener(v -> finish());
         btnSubmit.setOnClickListener(v -> checkAnswer());
-
         btnNext.setOnClickListener(v -> {
             currentQuestionIndex++;
             showNextQuestion();
         });
         btnRetryQuiz.setOnClickListener(v -> resetQuiz());
         btnCompleteLesson.setOnClickListener(v -> completeLesson());
+
         btnNext.setVisibility(View.GONE);
         btnCompleteLesson.setVisibility(View.GONE);
         btnRetryQuiz.setVisibility(View.GONE);
@@ -101,17 +100,16 @@ public class QuizActivity extends AppCompatActivity {
                 .document(language)
                 .collection("Quizzes")
                 .whereEqualTo("chapterNumber", chapterNumber)
-                .whereEqualTo("lessonNumber",  lessonNumber)
-                .whereEqualTo("skillLevel",    skillLevel)
+                .whereEqualTo("lessonNumber", lessonNumber)
+                .whereEqualTo("skillLevel", skillLevel)
                 .get()
                 .addOnSuccessListener(qs -> {
+                    progressBar.setVisibility(View.GONE);
                     if (qs.isEmpty()) {
-                        progressBar.setVisibility(View.GONE);
                         Toast.makeText(this, "Quiz not found!", Toast.LENGTH_LONG).show();
                         return;
                     }
                     String quizId = qs.getDocuments().get(0).getId();
-
                     firestore.collection("QuizContent")
                             .document(language)
                             .collection("Quizzes")
@@ -119,7 +117,6 @@ public class QuizActivity extends AppCompatActivity {
                             .collection("Questions")
                             .get()
                             .addOnSuccessListener(qs2 -> {
-                                progressBar.setVisibility(View.GONE);
                                 if (qs2.isEmpty()) {
                                     Toast.makeText(this, "No questions available.", Toast.LENGTH_LONG).show();
                                     return;
@@ -138,15 +135,14 @@ public class QuizActivity extends AppCompatActivity {
                                 showNextQuestion();
                             })
                             .addOnFailureListener(e -> {
-                                progressBar.setVisibility(View.GONE);
-                                Log.e(TAG, "Error loading Questions sub‑collec.", e);
-                                Toast.makeText(this, "Error loading quiz: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Log.e(TAG, "Error loading questions", e);
+                                Toast.makeText(this, "Error loading quiz: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             });
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
-                    Log.e(TAG, "Error finding quiz doc", e);
-                    Toast.makeText(this, "Error loading quiz: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error finding quiz", e);
+                    Toast.makeText(this, "Error loading quiz: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -159,18 +155,18 @@ public class QuizActivity extends AppCompatActivity {
         tvQuestion.setText(q.getQuestion());
 
         rgOptions.removeAllViews();
-        List<String> opts = new ArrayList<>(q.getOptions());
-        Collections.shuffle(opts);
-        for (String o : opts) {
+        char label = 'A';
+        for (String o : q.getOptions()) {
             RadioButton rb = new RadioButton(this);
-            rb.setText(o);
+            rb.setText(label + ". " + o);
             rgOptions.addView(rb);
+            label++;
         }
 
         tvCorrectAnswer.setVisibility(View.GONE);
-        tvExplanation .setVisibility(View.GONE);
-        btnSubmit .setVisibility(View.VISIBLE);
-        btnNext .setVisibility(View.GONE);
+        tvExplanation.setVisibility(View.GONE);
+        btnSubmit.setVisibility(View.VISIBLE);
+        btnNext.setVisibility(View.GONE);
     }
 
     private void checkAnswer() {
@@ -179,8 +175,11 @@ public class QuizActivity extends AppCompatActivity {
             Toast.makeText(this, "Please select an answer!", Toast.LENGTH_SHORT).show();
             return;
         }
-        String chosen = ((RadioButton)findViewById(sel)).getText().toString();
-        Question cur  = quizQuestions.get(currentQuestionIndex);
+        String chosen = ((RadioButton) findViewById(sel)).getText().toString();
+        if (chosen.contains(". ")) {
+            chosen = chosen.substring(chosen.indexOf(". ") + 2).trim();
+        }
+        Question cur = quizQuestions.get(currentQuestionIndex);
         if (chosen.equalsIgnoreCase(cur.getAnswer())) {
             score++;
         } else {
@@ -192,7 +191,7 @@ public class QuizActivity extends AppCompatActivity {
         tvExplanation.setText(cur.getExplanation());
         tvExplanation.setVisibility(View.VISIBLE);
         btnSubmit.setVisibility(View.GONE);
-        btnNext .setVisibility(View.VISIBLE);
+        btnNext.setVisibility(View.VISIBLE);
     }
 
     private void showFinalScore() {
@@ -212,18 +211,30 @@ public class QuizActivity extends AppCompatActivity {
             tvWrongQuestions.setVisibility(View.VISIBLE);
         }
 
-        btnNext .setVisibility(View.GONE);
-        btnRetryQuiz .setVisibility(View.VISIBLE);
+        btnNext.setVisibility(View.GONE);
+        btnRetryQuiz.setVisibility(View.VISIBLE);
         btnCompleteLesson.setVisibility(View.VISIBLE);
         btnReturnToLessons.setVisibility(View.VISIBLE);
 
         QuizAttempt attempt = new QuizAttempt(quizQuestions, wrongQuestions, score);
-        String quizName = "lesson" + lessonNumber;
-        new UserQuizDatabaseHelper()
-                .saveQuizAttemptForQuiz(chapterNumber, quizName, attempt, new UserQuizDatabaseHelper.SaveCallback() {
-                    @Override public void onSuccess()  { Log.d(TAG,"Saved quiz attempt"); }
-                    @Override public void onFailure(String err) { Log.e(TAG,"Save failed: "+err); }
-                });
+        new UserQuizDatabaseHelper().saveQuizAttemptForQuiz(
+                chapterNumber,
+                "Chapter " + chapterNumber,
+                lessonNumber,
+                lessonTitle,
+                language,
+                attempt,
+                new UserQuizDatabaseHelper.SaveCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "Saved quiz attempt");
+                    }
+                    @Override
+                    public void onFailure(String err) {
+                        Log.e(TAG, "Save failed: " + err);
+                    }
+                }
+        );
     }
 
     private void resetQuiz() {
@@ -239,9 +250,10 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void completeLesson() {
-        Map<String,Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         data.put("chapterNumber", chapterNumber);
         data.put("lessonNumber", lessonNumber);
+        data.put("lessonTitle", lessonTitle);
         data.put("progress", true);
 
         firestore.collection("UserProgress")
@@ -255,7 +267,8 @@ public class QuizActivity extends AppCompatActivity {
                     finish();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Couldn’t complete lesson: "+e.getMessage(),
-                                Toast.LENGTH_LONG).show());
+                        Toast.makeText(this, "Couldn’t complete lesson: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show()
+                );
     }
 }

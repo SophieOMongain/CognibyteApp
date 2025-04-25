@@ -12,9 +12,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.cognibyte.Adapter.LessonSelectionAdapter;
 import com.example.cognibyte.ChapterPage.CodeQuiz.WeeklyQuizActivity;
+import com.example.cognibyte.HomePage.ChapterActivity;
 import com.example.cognibyte.HomePage.HomeActivity;
 import com.example.cognibyte.HomePage.ProfileActivity;
-import com.example.cognibyte.HomePage.StatsActivity;
+import com.example.cognibyte.HomePage.Recap.RecapActivity;
+import com.example.cognibyte.HomePage.Stats.StatsActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -64,18 +66,19 @@ public class LessonActivity extends AppCompatActivity {
         tvChapterTitle = findViewById(R.id.tvChapterTitle);
         recyclerViewLessons = findViewById(R.id.recyclerViewLessons);
 
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> {
+            startActivity(new Intent(LessonActivity.this, ChapterActivity.class));
+            finish();
+        });
+
         btnHome.setOnClickListener(v -> startActivity(new Intent(this, HomeActivity.class)));
         btnProfile.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
         btnStats.setOnClickListener(v -> startActivity(new Intent(this, StatsActivity.class)));
-        btnCodeQuiz.setOnClickListener(v -> startActivity(new Intent(this, WeeklyQuizActivity.class)));
+        btnCodeQuiz.setOnClickListener(v -> startActivity(new Intent(this, RecapActivity.class)));
 
         chapterNumber = getIntent().getIntExtra("chapterNumber", 1);
-
         tvChapterTitle.setText("CHAPTER " + chapterNumber);
-
         lessonAdapter = new LessonSelectionAdapter(lessonItems, this::startLesson);
-
         recyclerViewLessons.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewLessons.setAdapter(lessonAdapter);
 
@@ -85,7 +88,6 @@ public class LessonActivity extends AppCompatActivity {
                     if (doc.exists() &&
                             doc.contains("language") &&
                             doc.contains("skillLevel")) {
-
                         selectedLanguage = doc.getString("language");
                         skillLevel = doc.getString("skillLevel");
                         loadLessons();

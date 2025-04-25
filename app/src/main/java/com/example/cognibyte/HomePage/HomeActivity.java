@@ -4,11 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.cognibyte.HomePage.Language.LanguageActivity;
 import com.example.cognibyte.HomePage.Recap.RecapActivity;
+import com.example.cognibyte.HomePage.Stats.StatsPageActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,7 +27,6 @@ public class HomeActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
-
         tvWelcome = findViewById(R.id.tv_welcome);
 
         loadUserData();
@@ -75,12 +73,12 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.stats_section).setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, StatsActivity.class);
+            Intent intent = new Intent(HomeActivity.this, StatsPageActivity.class);
             startActivity(intent);
         });
 
         findViewById(R.id.language_section).setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, LanguageActivity.class);
+            Intent intent = new Intent(HomeActivity.this, ManageLanguageActivity.class);
             startActivity(intent);
         });
 

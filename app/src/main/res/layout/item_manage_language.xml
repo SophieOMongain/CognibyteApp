@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/ivLangLogo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="Logo"/>
+
+    <TextView
+        android:id="@+id/tvLangName"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Language"
+        android:textSize="16sp"/>
+
+    <RadioButton
+        android:id="@+id/rbPrimary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"/>
+
+    <ImageView
+        android:id="@+id/ivDeleteLang"
+        android:layout_marginStart="12dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/back"
+        android:contentDescription="Delete"/>
+</LinearLayout>

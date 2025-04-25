@@ -1,146 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:background="@color/background_light_blue">
 
-
-    <ImageButton
-        android:id="@+id/btn_back"
-        android:layout_width="85dp"
-        android:layout_height="44dp"
-        android:layout_gravity="start"
-        android:background="@null"
-        android:contentDescription="Back Button"
-        android:padding="8dp"
-        android:src="@drawable/back"
-        app:tint="@color/primary_blue" />
-
-    <TextView
+    <RelativeLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="PROFILE"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/primary_blue"
-        android:gravity="center"
-        android:layout_marginBottom="8dp" />
+        android:layout_height="77dp"
+        android:background="@color/primary_blue"
+        android:padding="12dp">
 
-    <TextView
-        android:id="@+id/tv_username"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="USER NAME"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/primary_blue"
-        android:gravity="center"
-        android:layout_marginBottom="16dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="16dp">
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/back"
+            android:tint="@android:color/white"
+            android:contentDescription="Back"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Name:"
-            android:textSize="18sp"
-            android:textColor="@color/primary_blue"
-            android:layout_marginEnd="8dp" />
-
-        <EditText
-            android:id="@+id/et_name"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:hint="Enter Name"
-            android:background="@drawable/rounded_edittext"
-            android:padding="12dp"
-            android:textColor="@color/dark_gray"
-            android:enabled="false" />
-
-        <ImageButton
-            android:id="@+id/btn_edit_name"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/edit_icon"
-            android:background="@null"
-            android:contentDescription="Edit Name" />
-    </LinearLayout>
+            android:text="PROFILE"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/form_container"
+        android:layout_below="@id/header"
+        android:layout_above="@id/btn_save_changes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="16dp">
+        android:orientation="vertical"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/rounded_card"
+        android:padding="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Email:"
-            android:textSize="18sp"
+            android:text="Username"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:textColor="@color/primary_blue"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginBottom="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/et_username"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:hint="Enter Username"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:textColor="@color/dark_gray"
+                android:enabled="false" />
+
+            <ImageView
+                android:id="@+id/btn_edit_username"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/edit_icon"
+                android:contentDescription="Edit Username"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:layout_marginBottom="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/et_email"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:hint="Enter Email"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:textColor="@color/dark_gray"
+                android:enabled="false" />
+
+            <ImageView
+                android:id="@+id/btn_edit_email"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/edit_icon"
+                android:contentDescription="Edit Email"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date of Birth"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:layout_marginBottom="4dp" />
 
         <EditText
-            android:id="@+id/et_email"
-            android:layout_width="0dp"
+            android:id="@+id/et_date_of_birth"
+            android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_weight="1"
-            android:hint="Enter Email"
+            android:hint="Date of Birth"
             android:background="@drawable/rounded_edittext"
             android:padding="12dp"
             android:textColor="@color/dark_gray"
+            android:focusable="false"
+            android:clickable="false"
             android:enabled="false" />
-
-        <ImageButton
-            android:id="@+id/btn_edit_email"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/edit_icon"
-            android:background="@null"
-            android:contentDescription="Edit Email" />
     </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date of Birth:"
-        android:textSize="18sp"
-        android:textColor="@color/primary_blue"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/et_date_of_birth"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:hint="Date of Birth"
-        android:background="@drawable/rounded_edittext"
-        android:padding="12dp"
-        android:textColor="@color/dark_gray"
-        android:focusable="false"
-        android:clickable="false"
-        android:enabled="false"
-        android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btn_save_changes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:text="SAVE CHANGES"
-        android:background="@drawable/rounded_button_dark"
-        android:textColor="@color/white"
+        android:background="@drawable/rounded_card"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
         android:padding="16dp"
-        android:textSize="18sp" />
-</LinearLayout>
-
-
-
+        android:textSize="18sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp" />
+</RelativeLayout>

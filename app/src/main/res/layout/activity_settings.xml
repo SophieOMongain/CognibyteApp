@@ -1,116 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:background="@color/background_light_blue">
 
-    <ImageView
-        android:id="@+id/btnBack"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/back"
-        android:contentDescription="@string/back" />
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="77dp"
+        android:background="@color/primary_blue"
+        android:padding="12dp">
 
-    <TextView
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/back"
+            android:tint="@android:color/white"
+            android:contentDescription="Back"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SETTINGS"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/form_container"
+        android:layout_below="@id/header"
+        android:layout_above="@id/btn_sign_out"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SETTINGS"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/primary_blue"
-        android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:orientation="vertical"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/rounded_card"
+        android:padding="20dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="User name:"
-        android:textSize="18sp"
-        android:textColor="@color/primary_blue"
-        android:layout_marginBottom="4dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Username"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:layout_marginBottom="4dp" />
 
-    <EditText
-        android:id="@+id/et_username"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@drawable/rounded_edittext"
-        android:padding="12dp"
-        android:hint="Username"
-        android:enabled="false"
-        android:textColor="@color/dark_gray"
-        android:layout_marginBottom="16dp" />
+        <EditText
+            android:id="@+id/et_username"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Username"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:textColor="@color/dark_gray"
+            android:enabled="false"
+            android:layout_marginBottom="16dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date Joined:"
-        android:textSize="18sp"
-        android:textColor="@color/primary_blue"
-        android:layout_marginBottom="4dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date Joined"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:layout_marginBottom="4dp" />
 
-    <EditText
-        android:id="@+id/et_date_joined"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@drawable/rounded_edittext"
-        android:padding="12dp"
-        android:hint="Date Joined"
-        android:enabled="false"
-        android:textColor="@color/dark_gray"
-        android:layout_marginBottom="16dp" />
+        <EditText
+            android:id="@+id/et_date_joined"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Date Joined"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:textColor="@color/dark_gray"
+            android:enabled="false"
+            android:layout_marginBottom="16dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Language:"
-        android:textSize="18sp"
-        android:textColor="@color/primary_blue"
-        android:layout_marginBottom="4dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Language"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:layout_marginBottom="4dp" />
 
-    <EditText
-        android:id="@+id/et_language"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@drawable/rounded_edittext"
-        android:padding="12dp"
-        android:hint="Language"
-        android:enabled="false"
-        android:textColor="@color/dark_gray"
-        android:layout_marginBottom="24dp" />
+        <EditText
+            android:id="@+id/et_language"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Language"
+            android:background="@drawable/rounded_edittext"
+            android:padding="12dp"
+            android:textColor="@color/dark_gray"
+            android:enabled="false"
+            android:layout_marginBottom="16dp" />
 
-    <Button
-        android:id="@+id/btn_view_courses"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="VIEW COURSES"
-        android:background="@drawable/rounded_button_dark"
-        android:textColor="@color/white"
-        android:padding="12dp"
-        android:textSize="18sp"
-        android:layout_marginBottom="16dp" />
+        <Button
+            android:id="@+id/btn_view_courses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="VIEW COURSES"
+            android:background="@drawable/rounded_button_dark"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp" />
 
-    <Button
-        android:id="@+id/btn_delete_account"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="DELETE ACCOUNT"
-        android:background="@drawable/rounded_button_dark"
-        android:textColor="@color/white"
-        android:padding="12dp"
-        android:textSize="18sp"
-        android:layout_marginBottom="16dp" />
+        <Button
+            android:id="@+id/btn_delete_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DELETE ACCOUNT"
+            android:background="@drawable/rounded_button_dark"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_sign_out"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:text="SIGN OUT"
         android:background="@drawable/rounded_button_dark"
-        android:textColor="@color/white"
-        android:padding="12dp"
-        android:textSize="18sp" />
-
-</LinearLayout>
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:textSize="18sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp" />
+</RelativeLayout>

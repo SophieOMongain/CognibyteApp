@@ -1,61 +1,57 @@
 package models;
 
-import androidx.annotation.NonNull;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.google.firebase.firestore.*;
+import java.util.*;
 
 public class UserQuizDatabaseHelper {
-    private FirebaseFirestore db;
-    private String userId;
+    private final FirebaseFirestore db;
+    private final String userId;
 
-    public UserQuizDatabaseHelper() {
-        db = FirebaseFirestore.getInstance();
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        }
+    public interface SaveCallback {
+        void onSuccess();
+        void onFailure(String error);
     }
 
-    public void saveQuizAttemptForQuiz(int chapterNumber, String quizName, QuizAttempt attempt, SaveCallback callback) {
+    public UserQuizDatabaseHelper() {
+        this.db = FirebaseFirestore.getInstance();
+        this.userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    public void saveQuizAttemptForQuiz(int chapterNumber, String chapterTitle, int lessonNumber, String lessonTitle, String language, QuizAttempt attempt, SaveCallback callback) {
         if (userId == null) {
             callback.onFailure("User not logged in.");
             return;
         }
 
-        db.collection("UserQuiz")
+        CollectionReference attemptsRef = db
+                .collection("UserQuiz")
                 .document(userId)
-                .collection("Chapters")
-                .document("Chapter" + chapterNumber)
-                .collection("Quizzes")
-                .document(quizName)
-                .collection("Attempts")
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    int nextAttemptNumber = querySnapshot.size() + 1;
-                    String attemptId = "attempt" + nextAttemptNumber;
+                .collection("Attempts");
 
-                    db.collection("UserQuiz")
-                            .document(userId)
-                            .collection("Chapters")
-                            .document("Chapter" + chapterNumber)
-                            .collection("Quizzes")
-                            .document(quizName)
-                            .collection("Attempts")
-                            .document(attemptId)
-                            .set(attempt)
-                            .addOnSuccessListener(aVoid -> callback.onSuccess())
+        attemptsRef.get()
+                .addOnSuccessListener(qs -> {
+                    int next = qs.size() + 1;
+                    String attemptId = "attempt" + next;
+                    DocumentReference attemptDoc = attemptsRef.document(attemptId);
+
+                    Map<String, Object> attemptData = new HashMap<>();
+                    attemptData.put("attemptNumber", next);
+                    attemptData.put("userId", userId);
+                    attemptData.put("language", language);
+                    attemptData.put("chapterTitle", chapterTitle);
+                    attemptData.put("chapterNumber", chapterNumber);
+                    attemptData.put("lessonTitle", lessonTitle);
+                    attemptData.put("lessonNumber", lessonNumber);
+                    attemptData.put("questionsAsked", attempt.getQuestionsAsked());
+                    attemptData.put("wrongQuestions", attempt.getWrongQuestions());
+                    attemptData.put("score", attempt.getScore());
+                    attemptData.put("timestamp", FieldValue.serverTimestamp());
+
+                    attemptDoc.set(attemptData)
+                            .addOnSuccessListener(a -> callback.onSuccess())
                             .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
                 })
-                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
-    }
-
-    public interface SaveCallback {
-        void onSuccess();
-        void onFailure(String error);
+                .addOnFailureListener(e -> callback.onFailure("Couldn't fetch attempts: " + e.getMessage()));
     }
 }

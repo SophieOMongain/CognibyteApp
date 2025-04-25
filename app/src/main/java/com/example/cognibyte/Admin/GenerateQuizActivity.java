@@ -43,27 +43,34 @@ public class GenerateQuizActivity extends AppCompatActivity {
         btnViewContent = findViewById(R.id.btnViewContent);
         firestore = FirebaseFirestore.getInstance();
 
-        String[] languages = {"Java", "JavaScript", "HTML", "Python"};
-        ArrayAdapter<String> langAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, languages);
+        String[] languages = {"Java", "Javascript", "HTML", "Python"};
+        ArrayAdapter<String> langAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                languages
+        );
         spinnerLanguage.setAdapter(langAdapter);
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+            @Override
+            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
                 selectedLanguage = languages[pos];
                 loadChapterTitles();
             }
-            @Override public void onNothingSelected(AdapterView<?> p) { }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
         });
 
         String[] skillLevels = {"Beginner", "Intermediate", "Expert"};
-        ArrayAdapter<String> skillAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, skillLevels);
+        ArrayAdapter<String> skillAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                skillLevels
+        );
         spinnerSkillLevel.setAdapter(skillAdapter);
         spinnerSkillLevel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
                 selectedSkillLevel = skillLevels[pos];
             }
-            @Override public void onNothingSelected(AdapterView<?> p) { }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
         });
 
         spinnerChapter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -71,21 +78,22 @@ public class GenerateQuizActivity extends AppCompatActivity {
                 selectedChapter = (String) p.getItemAtPosition(pos);
                 loadLessonTitles(selectedChapter);
             }
-            @Override public void onNothingSelected(AdapterView<?> p) { }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
         });
 
         spinnerLesson.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
                 selectedLesson = (String) p.getItemAtPosition(pos);
             }
-            @Override public void onNothingSelected(AdapterView<?> p) { }
+            @Override public void onNothingSelected(AdapterView<?> p) {}
         });
 
         btnBack.setOnClickListener(v -> finish());
-
         btnGenerateContent.setOnClickListener(v -> {
             if (selectedChapter.isEmpty() || selectedLesson.isEmpty()) {
-                Toast.makeText(this, "Please select a chapter and lesson", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,
+                        "Please select a chapter and lesson",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
             btnGenerateContent.setEnabled(false);
@@ -104,12 +112,12 @@ public class GenerateQuizActivity extends AppCompatActivity {
                         }
                         DocumentSnapshot doc = qs.getDocuments().get(0);
                         String lessonContent = doc.getString("lessonContent");
-                        String chapterId     = doc.getString("chapterId");
-                        String lessonTitle   = doc.getString("lessonTitle");
+                        String chapterId = doc.getString("chapterId");
+                        String lessonTitle = doc.getString("lessonTitle");
                         Long chapNum = doc.getLong("chapterNumber");
-                        Long lesNum  = doc.getLong("lessonNumber");
-                        int chapterNumber = chapNum  != null ? chapNum.intValue() : 0;
-                        int lessonNumber  = lesNum   != null ? lesNum.intValue() : 0;
+                        Long lesNum = doc.getLong("lessonNumber");
+                        int chapterNumber = chapNum != null ? chapNum.intValue() : 0;
+                        int lessonNumber = lesNum != null ? lesNum.intValue() : 0;
 
                         if (lessonContent == null || lessonContent.isEmpty()) {
                             Toast.makeText(this, "Lesson content is empty", Toast.LENGTH_SHORT).show();
@@ -120,7 +128,9 @@ public class GenerateQuizActivity extends AppCompatActivity {
                         requestQuizGeneration(chapterNumber, lessonNumber, selectedLanguage, selectedSkillLevel, lessonContent, chapterId, lessonTitle);
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Error fetching lesson: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this,
+                                "Error fetching lesson: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
                         btnGenerateContent.setEnabled(true);
                     });
         });
@@ -142,10 +152,15 @@ public class GenerateQuizActivity extends AppCompatActivity {
                         if (t != null && !chapters.contains(t)) chapters.add(t);
                     }
                     spinnerChapter.setAdapter(new ArrayAdapter<>(
-                            this, android.R.layout.simple_spinner_dropdown_item, chapters));
+                            this,
+                            android.R.layout.simple_spinner_dropdown_item,
+                            chapters
+                    ));
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error loading chapters: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this,
+                                "Error loading chapters: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show()
                 );
     }
 
@@ -162,10 +177,15 @@ public class GenerateQuizActivity extends AppCompatActivity {
                         if (t != null && !lessons.contains(t)) lessons.add(t);
                     }
                     spinnerLesson.setAdapter(new ArrayAdapter<>(
-                            this, android.R.layout.simple_spinner_dropdown_item, lessons));
+                            this,
+                            android.R.layout.simple_spinner_dropdown_item,
+                            lessons
+                    ));
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error loading lessons: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this,
+                                "Error loading lessons: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show()
                 );
     }
 

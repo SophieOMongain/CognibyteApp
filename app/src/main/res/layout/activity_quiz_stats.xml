@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/quizStatsLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light_blue"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="56dp"
+        android:layout_height="40dp"
+        android:src="@drawable/back"
+        android:contentDescription="@string/back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Quiz Statistics"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_blue"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnBack"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tvSelectLanguage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Select Language"
+        android:textSize="16sp"
+        android:textColor="@color/primary_blue"
+        app:layout_constraintTop_toBottomOf="@id/tvHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <Spinner
+        android:id="@+id/spinnerLanguage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#D3D3D3"
+        android:spinnerMode="dropdown"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectLanguage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvSelectChapter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Select Chapter"
+        android:textSize="16sp"
+        android:textColor="@color/primary_blue"
+        app:layout_constraintTop_toBottomOf="@id/spinnerLanguage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <Spinner
+        android:id="@+id/spinnerChapters"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#D3D3D3"
+        android:spinnerMode="dropdown"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectChapter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvSelectLesson"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Select Lesson"
+        android:textSize="16sp"
+        android:textColor="@color/primary_blue"
+        app:layout_constraintTop_toBottomOf="@id/spinnerChapters"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <Spinner
+        android:id="@+id/spinnerLesson"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#D3D3D3"
+        android:spinnerMode="dropdown"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectLesson"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvSelectAttempt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Select Attempt"
+        android:textSize="16sp"
+        android:textColor="@color/primary_blue"
+        app:layout_constraintTop_toBottomOf="@id/spinnerLesson"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <Spinner
+        android:id="@+id/spinnerAttempt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#D3D3D3"
+        android:spinnerMode="dropdown"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectAttempt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvAccuracyLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Overall Accuracy"
+        android:textSize="18sp"
+        android:textColor="@color/primary_blue"
+        app:layout_constraintTop_toBottomOf="@id/spinnerAttempt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <TextView
+        android:id="@+id/tvOverallAccuracy"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="—%"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/tvAccuracyLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/barChartQuiz"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        app:layout_constraintTop_toBottomOf="@id/tvOverallAccuracy"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/pieChartAnswers"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        app:layout_constraintTop_toBottomOf="@id/barChartQuiz"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>
