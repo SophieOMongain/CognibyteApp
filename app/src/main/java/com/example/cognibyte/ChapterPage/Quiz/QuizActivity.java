@@ -256,18 +256,27 @@ public class QuizActivity extends AppCompatActivity {
         data.put("lessonTitle", lessonTitle);
         data.put("progress", true);
 
+        String docId = "Chapter" + chapterNumber + "_Lesson" + lessonNumber;
+
         firestore.collection("UserProgress")
                 .document(user.getUid())
+                .collection("Languages")
+                .document(language)
                 .collection("Chapters")
-                .document(String.valueOf(lessonNumber))
+                .document(docId)
                 .set(data)
                 .addOnSuccessListener(v -> {
-                    startActivity(new Intent(this, LessonActivity.class)
-                            .putExtra("chapterNumber", chapterNumber));
+                    int nextChapter = (lessonNumber == 5)
+                            ? chapterNumber + 1
+                            : chapterNumber;
+                    Intent intent = new Intent(QuizActivity.this, LessonActivity.class);
+                    intent.putExtra("chapterNumber", nextChapter);
+                    startActivity(intent);
                     finish();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Couldn’t complete lesson: " + e.getMessage(),
+                        Toast.makeText(QuizActivity.this,
+                                "Couldn’t complete lesson: " + e.getMessage(),
                                 Toast.LENGTH_LONG).show()
                 );
     }

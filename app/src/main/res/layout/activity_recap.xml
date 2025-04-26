@@ -6,52 +6,123 @@
     android:orientation="vertical"
     android:background="#F1F5F7">
 
-    <LinearLayout
-        android:layout_width="436dp"
-        android:layout_height="110dp"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="97dp"
         android:background="#B0CDE4"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/back_arrow"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:contentDescription="Back"
             android:src="@drawable/back" />
 
         <TextView
+            android:id="@+id/header_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="CHANGE PROGRAMMING LANGUAGE"
+            android:layout_centerInParent="true"
+            android:text="Recap Section"
             android:textColor="#0D2C54"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textSize="22sp"
+            android:textStyle="bold"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="24dp"
+        android:layout_gravity="center_horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/rounded_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/rounded_blue_square"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="45dp"
+                    android:contentDescription="Lesson Icon"
+                    android:src="@drawable/lesson_recap" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/btn_lesson_recap"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Lesson Recap"
+                android:textColor="#0D2C54"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/arrow_lesson"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/arrow_lesson" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
+            android:background="@drawable/rounded_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/rounded_blue_square"
+                android:layout_marginEnd="16dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Quiz Icon"
+                    android:src="@drawable/quiz" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/btn_quiz_recap"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Quiz Recap"
+                android:textColor="#0D2C54"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/arrow_quiz"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/arrow_quiz" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_lesson_recap"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="View Lesson Recap"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:layout_marginTop="100dp"
-        android:backgroundTint="#0D2C54"
-        android:layout_gravity="center_horizontal"
-        android:padding="16dp" />
-
-    <Button
-        android:id="@+id/btn_quiz_recap"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="View Quiz Recap"
-        android:textColor="#4A4A4A"
-        android:textSize="18sp"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="#D3D3D3"
-        android:layout_gravity="center_horizontal"
-        android:padding="16dp" />
 </LinearLayout>

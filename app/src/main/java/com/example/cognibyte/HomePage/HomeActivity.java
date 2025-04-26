@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.cognibyte.HomePage.Language.LanguageActivity;
 import com.example.cognibyte.HomePage.Recap.RecapActivity;
 import com.example.cognibyte.HomePage.Stats.StatsPageActivity;
 import com.example.cognibyte.R;

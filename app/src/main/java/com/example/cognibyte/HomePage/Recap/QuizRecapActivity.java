@@ -15,7 +15,7 @@ public class QuizRecapActivity extends AppCompatActivity {
 
     private ImageView backArrow;
     private Spinner spinnerLanguage, spinnerSkillLevel, spinnerChapter, spinnerLesson;
-    private Button btnViewQuizRecap;
+    private Button btnViewQuizRecap, btnRetakeQuiz;
     private TextView tvQuizRecap;
     private FirebaseFirestore firestore;
     private String selectedLanguage = "";
@@ -30,13 +30,14 @@ public class QuizRecapActivity extends AppCompatActivity {
 
         backArrow = findViewById(R.id.back_arrow);
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
-        spinnerSkillLevel= findViewById(R.id.spinnerSkillLevel);
+        spinnerSkillLevel = findViewById(R.id.spinnerSkillLevel);
         spinnerChapter = findViewById(R.id.spinnerChapter);
         spinnerLesson = findViewById(R.id.spinnerLesson);
         btnViewQuizRecap = findViewById(R.id.btnViewQuizRecap);
+        btnRetakeQuiz = findViewById(R.id.btnRetakeQuiz);
         tvQuizRecap = findViewById(R.id.tvQuizRecap);
-        firestore = FirebaseFirestore.getInstance();
 
+        firestore = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
@@ -48,6 +49,7 @@ public class QuizRecapActivity extends AppCompatActivity {
                 new Intent(QuizRecapActivity.this, RecapActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         ));
+
         setupLanguageSpinner();
         setupSkillLevelSpinner();
 
@@ -67,24 +69,65 @@ public class QuizRecapActivity extends AppCompatActivity {
         });
 
         btnViewQuizRecap.setOnClickListener(v -> loadAndDisplayQuiz());
+
+        btnRetakeQuiz.setOnClickListener(v -> {
+            if (selectedLanguage.isEmpty() || selectedSkillLevel.isEmpty() || selectedChapter.isEmpty() || selectedLesson.isEmpty()) {
+                Toast.makeText(this, "Please make all selections first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = new Intent(QuizRecapActivity.this, FullQuizRetakeActivity.class);
+            intent.putExtra("language", selectedLanguage);
+            intent.putExtra("skill", selectedSkillLevel);
+            intent.putExtra("chapter", selectedChapter);
+            intent.putExtra("lesson", selectedLesson);
+            startActivity(intent);
+        });
     }
 
     private void setupLanguageSpinner() {
-        String[] languages = {"Java", "Javascript", "HTML", "Python"};
-        ArrayAdapter<String> langAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_dropdown_item, languages
-        );
-        spinnerLanguage.setAdapter(langAdapter);
-        spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedLanguage = languages[position];
-                loadChapterTitles(selectedLanguage);
-            }
-        });
-        spinnerLanguage.setSelection(0);
-        selectedLanguage = languages[0];
-        loadChapterTitles(selectedLanguage);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String userId = user.getUid();
+
+        firestore.collection("Languages").document(userId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    List<String> userLanguages = new ArrayList<>();
+                    Object arr = doc.get("languages");
+                    if (arr instanceof List<?>) {
+                        for (Object o : (List<?>) arr) {
+                            if (o instanceof String) userLanguages.add((String) o);
+                        }
+                    }
+                    if (userLanguages.isEmpty()) {
+                        Toast.makeText(this, "No languages added yet", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    ArrayAdapter<String> langAdapter = new ArrayAdapter<>(
+                            this, android.R.layout.simple_spinner_dropdown_item, userLanguages
+                    );
+                    spinnerLanguage.setAdapter(langAdapter);
+
+                    spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override public void onNothingSelected(AdapterView<?> parent) {}
+                        @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            selectedLanguage = userLanguages.get(position);
+                            loadChapterTitles(selectedLanguage);
+                        }
+                    });
+
+                    spinnerLanguage.setSelection(0);
+                    selectedLanguage = userLanguages.get(0);
+                    loadChapterTitles(selectedLanguage);
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error loading languages: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
     }
 
     private void setupSkillLevelSpinner() {
@@ -220,7 +263,7 @@ public class QuizRecapActivity extends AppCompatActivity {
 
     private void displayFromSnapshots(List<DocumentSnapshot> docs) {
         StringBuilder out = new StringBuilder();
-        char qNo = '1';
+        int qNo = 1;
         for (DocumentSnapshot d : docs) {
             String question    = d.getString("question");
             @SuppressWarnings("unchecked")
@@ -242,7 +285,7 @@ public class QuizRecapActivity extends AppCompatActivity {
 
     private void displayFromMaps(List<Map<String,Object>> rawQs) {
         StringBuilder out = new StringBuilder();
-        char qNo = '1';
+        int qNo = 1;
         for (Map<String,Object> q : rawQs) {
             String question    = (String) q.get("question");
             @SuppressWarnings("unchecked")

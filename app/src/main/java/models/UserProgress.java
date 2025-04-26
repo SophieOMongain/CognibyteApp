@@ -5,14 +5,16 @@ public class UserProgress {
     private int chapterNumber;
     private int lessonNumber;
     private boolean progress;
+    private String language;
 
     public UserProgress() { }
 
-    public UserProgress(String chapterId, int chapterNumber, int lessonNumber, boolean progress) {
+    public UserProgress(String chapterId, int chapterNumber, int lessonNumber, boolean progress, String language) {
         this.chapterId = chapterId;
         this.chapterNumber = chapterNumber;
         this.lessonNumber = lessonNumber;
         this.progress = progress;
+        this.language = language;
     }
 
     public String getChapterId() {
@@ -45,5 +47,13 @@ public class UserProgress {
 
     public void setProgress(boolean progress) {
         this.progress = progress;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

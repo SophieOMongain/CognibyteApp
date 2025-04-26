@@ -11,9 +11,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.cognibyte.ChapterPage.CodeQuiz.WeeklyQuizActivity;
 import com.example.cognibyte.HomePage.Recap.RecapActivity;
-import com.example.cognibyte.HomePage.Stats.StatsActivity;
 import com.example.cognibyte.HomePage.Stats.StatsPageActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class ChapterActivity extends AppCompatActivity {
 
@@ -103,29 +102,17 @@ public class ChapterActivity extends AppCompatActivity {
                     }
 
                     if (lang == null || skill == null) {
-                        Toast.makeText(this,
-                                "Please select a language first.",
-                                Toast.LENGTH_LONG
-                        ).show();
-                        startActivity(new Intent(
-                                this,
-                                com.example.cognibyte.Account.LanguageSelectionActivity.class
-                        ));
+                        Toast.makeText(this, "Please select a language first.", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(this, com.example.cognibyte.Account.LanguageSelectionActivity.class));
                         finish();
                         return;
                     }
 
                     selectedLanguage = lang;
                     skillLevel = skill;
-                    userLanguages = langsList.isEmpty()
-                            ? Collections.singletonList(lang)
-                            : langsList;
+                    userLanguages = langsList.isEmpty() ? Collections.singletonList(lang) : langsList;
 
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                            this,
-                            android.R.layout.simple_spinner_item,
-                            userLanguages
-                    );
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userLanguages);
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     spinnerLanguage.setAdapter(adapter);
 
@@ -168,63 +155,74 @@ public class ChapterActivity extends AppCompatActivity {
     }
 
     private void updateChapterButtons() {
-        firestore.collection("Users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    boolean c1 = Boolean.TRUE.equals(doc.getBoolean("Chapter1"));
-                    boolean c2 = Boolean.TRUE.equals(doc.getBoolean("Chapter2"));
-                    boolean c3 = Boolean.TRUE.equals(doc.getBoolean("Chapter3"));
+        setEnabled(btnChapter1, true);
 
-                    btnChapter1.setEnabled(true);
-                    setEnabled(btnChapter2, c1);
-                    setEnabled(btnChapter3, c2);
-                    setEnabled(btnChapter4, c3);
+        BiConsumer<Button, Integer> unlockIfPrevDone = (btn, prevChap) -> {
+            firestore.collection("UserProgress")
+                    .document(userId)
+                    .collection("Languages")
+                    .document(selectedLanguage)
+                    .collection("Chapters")
+                    .whereEqualTo("chapterNumber", prevChap)
+                    .whereEqualTo("lessonNumber", 5)
+                    .whereEqualTo("progress", true)
+                    .get()
+                    .addOnSuccessListener(qs -> {
+                        boolean ok = !qs.isEmpty();
+                        setEnabled(btn, ok);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error checking progress for chapter " + prevChap, e);
+                        setEnabled(btn, false);
+                    });
+        };
+
+        unlockIfPrevDone.accept(btnChapter2, 1);
+        unlockIfPrevDone.accept(btnChapter3, 2);
+        unlockIfPrevDone.accept(btnChapter4, 3);
+    }
+
+    private void startChapter(int num) {
+        if (num == 1) {
+            launchLessonActivity(1);
+            return;
+        }
+        firestore.collection("UserProgress")
+                .document(userId)
+                .collection("Languages")
+                .document(selectedLanguage)
+                .collection("Chapters")
+                .whereEqualTo("chapterNumber", num - 1)
+                .whereEqualTo("lessonNumber", 5)
+                .whereEqualTo("progress", true)
+                .get()
+                .addOnSuccessListener(qs -> {
+                    if (qs.isEmpty()) {
+                        Toast.makeText(this, "Complete Chapter " + (num - 1) + " first!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        launchLessonActivity(num);
+                    }
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "Error loading progress", e));
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error checking progress for chapter " + (num - 1), e);
+                    Toast.makeText(this, "Could not check progress.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void launchLessonActivity(int chap) {
+        Intent i = new Intent(this, com.example.cognibyte.ChapterPage.LessonActivity.class);
+        i.putExtra("chapterNumber", chap);
+        i.putExtra("language", selectedLanguage);
+        i.putExtra("skillLevel", skillLevel);
+        startActivity(i);
+    }
+
+    private void navigateTo(Class<?> cls) {
+        startActivity(new Intent(this, cls));
     }
 
     private void setEnabled(Button btn, boolean ok) {
         btn.setEnabled(ok);
         btn.setAlpha(ok ? 1f : 0.5f);
-    }
-
-    private void startChapter(int num) {
-        if (num > 1) {
-            firestore.collection("Users")
-                    .document(userId)
-                    .get()
-                    .addOnSuccessListener(doc -> {
-                        boolean prev = Boolean.TRUE.equals(doc.getBoolean("Chapter" + (num - 1)));
-                        if (!prev) {
-                            Toast.makeText(this,
-                                    "Complete Chapter " + (num - 1) + " first!",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                            return;
-                        }
-                        Intent i = new Intent(
-                                this,
-                                com.example.cognibyte.ChapterPage.LessonActivity.class
-                        );
-                        i.putExtra("chapterNumber", num);
-                        i.putExtra("language", selectedLanguage);
-                        i.putExtra("skillLevel", skillLevel);
-                        startActivity(i);
-                    });
-        } else {
-            Intent i = new Intent(
-                    this,
-                    com.example.cognibyte.ChapterPage.LessonActivity.class
-            );
-            i.putExtra("chapterNumber", num);
-            i.putExtra("language", selectedLanguage);
-            i.putExtra("skillLevel", skillLevel);
-            startActivity(i);
-        }
-    }
-
-    private void navigateTo(Class<?> cls) {
-        startActivity(new Intent(this, cls));
     }
 }

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/light_gray">
+    android:background="@color/text_grey">
 
     <LinearLayout
         android:id="@+id/languageHeader"
@@ -46,7 +46,7 @@
             android:layout_height="80dp"
             android:text="Chapter 1"
             android:background="@drawable/rounded_button_dark"
-            android:textColor="@color/light_gray"
+            android:textColor="@color/text_grey"
             android:textSize="22sp"
             android:textStyle="bold"/>
 
@@ -56,7 +56,7 @@
             android:layout_height="80dp"
             android:text="Chapter 2"
             android:background="@drawable/rounded_button_dark"
-            android:textColor="@color/light_gray"
+            android:textColor="@color/text_grey"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginTop="25dp"/>
@@ -67,7 +67,7 @@
             android:layout_height="80dp"
             android:text="Chapter 3"
             android:background="@drawable/rounded_button_dark"
-            android:textColor="@color/light_gray"
+            android:textColor="@color/text_grey"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginTop="25dp"/>
@@ -78,7 +78,7 @@
             android:layout_height="80dp"
             android:text="Chapter 4"
             android:background="@drawable/rounded_button_dark"
-            android:textColor="@color/light_gray"
+            android:textColor="@color/text_grey"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginTop="25dp"/>

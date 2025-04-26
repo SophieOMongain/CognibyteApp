@@ -3,7 +3,7 @@ package com.example.cognibyte.HomePage.Recap;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
-import android.widget.Button;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.cognibyte.HomePage.HomeActivity;
 import com.example.cognibyte.R;
@@ -11,8 +11,10 @@ import com.example.cognibyte.R;
 public class RecapActivity extends AppCompatActivity {
 
     private ImageView backArrow;
-    private Button btnLessonRecap;
-    private Button btnQuizRecap;
+    private TextView btnLessonRecap;
+    private TextView btnQuizRecap;
+    private ImageView arrowLesson;
+    private ImageView arrowQuiz;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +24,8 @@ public class RecapActivity extends AppCompatActivity {
         backArrow = findViewById(R.id.back_arrow);
         btnLessonRecap = findViewById(R.id.btn_lesson_recap);
         btnQuizRecap = findViewById(R.id.btn_quiz_recap);
+        arrowLesson = findViewById(R.id.arrow_lesson);
+        arrowQuiz = findViewById(R.id.arrow_quiz);
 
         backArrow.setOnClickListener(v -> {
             Intent intent = new Intent(RecapActivity.this, HomeActivity.class);
@@ -34,7 +38,17 @@ public class RecapActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        arrowLesson.setOnClickListener(v -> {
+            Intent intent = new Intent(RecapActivity.this, LessonRecapActivity.class);
+            startActivity(intent);
+        });
+
         btnQuizRecap.setOnClickListener(v -> {
+            Intent intent = new Intent(RecapActivity.this, QuizRecapActivity.class);
+            startActivity(intent);
+        });
+
+        arrowQuiz.setOnClickListener(v -> {
             Intent intent = new Intent(RecapActivity.this, QuizRecapActivity.class);
             startActivity(intent);
         });

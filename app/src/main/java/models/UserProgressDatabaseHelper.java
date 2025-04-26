@@ -8,20 +8,22 @@ import java.util.Map;
 public class UserProgressDatabaseHelper {
 
     private FirebaseFirestore db;
-
     public UserProgressDatabaseHelper() {
         db = FirebaseFirestore.getInstance();
     }
 
-    public void markLessonCompleted(String userId, String chapterId, int chapterNumber, int lessonNumber, boolean progress, SaveCallback callback) {
+    public void markLessonCompleted(String userId, String language, String chapterId, int chapterNumber, int lessonNumber, boolean progress, SaveCallback callback) {
         Map<String, Object> progressData = new HashMap<>();
         progressData.put("chapterId", chapterId);
         progressData.put("chapterNumber", chapterNumber);
         progressData.put("lessonNumber", lessonNumber);
         progressData.put("progress", progress);
+        progressData.put("language", language);
 
         db.collection("UserProgress")
                 .document(userId)
+                .collection("Languages")
+                .document(language)
                 .collection("Chapters")
                 .document(chapterId)
                 .set(progressData, SetOptions.merge())

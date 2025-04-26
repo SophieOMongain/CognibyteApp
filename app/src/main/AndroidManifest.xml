@@ -165,6 +165,11 @@
             android:name=".HomePage.Recap.QuizRecapActivity"
             android:exported="true" />
 
+        <!--  full Quiz Page -->
+        <activity
+            android:name=".HomePage.Recap.FullQuizRetakeActivity"
+            android:exported="true" />
+
         <!--  stats Page -->
         <activity
             android:name=".HomePage.Stats.StatsPageActivity"

@@ -6,7 +6,7 @@
     android:id="@+id/layout_admin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/text_grey">
 
 
     <LinearLayout
@@ -69,7 +69,7 @@
         android:layout_marginTop="244dp"
         android:background="@drawable/rounded_button_dark"
         android:text="RETURN TO LOGIN"
-        android:textColor="@color/light_gray"
+        android:textColor="@color/text_grey"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"

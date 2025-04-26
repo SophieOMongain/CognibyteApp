@@ -6,7 +6,7 @@
     android:id="@+id/layout_view_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/text_grey"
     tools:context=".Admin.ViewChapterContentActivity">
 
     <LinearLayout
@@ -44,7 +44,7 @@
         android:id="@+id/spinnerLanguage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/light_gray"
+        android:background="@color/text_grey"
         app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,7 +54,7 @@
         android:id="@+id/spinnerChapter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/light_gray"
+        android:background="@color/text_grey"
         android:prompt="@string/select_chapter"
         app:layout_constraintTop_toBottomOf="@id/spinnerLanguage"
         app:layout_constraintStart_toStartOf="parent"
@@ -65,7 +65,7 @@
         android:id="@+id/spinnerLesson"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/light_gray"
+        android:background="@color/text_grey"
         android:prompt="@string/select_lesson"
         app:layout_constraintTop_toBottomOf="@id/spinnerChapter"
         app:layout_constraintStart_toStartOf="parent"
@@ -88,7 +88,7 @@
         android:id="@+id/LastEdited"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/light_gray"
+        android:background="@color/text_grey"
         android:enabled="false"
         android:hint=" Last Edited"
         android:inputType="text"
@@ -115,7 +115,7 @@
         android:layout_width="0dp"
         android:layout_height="130dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/light_gray"
+        android:background="@color/text_grey"
         app:layout_constraintTop_toBottomOf="@id/tvLessonContentTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -138,7 +138,7 @@
         android:layout_width="0dp"
         android:layout_height="172dp"
         android:layout_marginTop="8dp"
-        android:background="@color/light_gray"
+        android:background="@color/text_grey"
         app:layout_constraintTop_toBottomOf="@id/tvLessonRecapTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

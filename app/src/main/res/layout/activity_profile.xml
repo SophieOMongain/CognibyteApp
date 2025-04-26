@@ -17,7 +17,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/back"
-            android:tint="@android:color/white"
+            android:tint="@color/text_grey"
             android:contentDescription="Back"
             android:clickable="true"
             android:focusable="true"
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="PROFILE"
-            android:textColor="@android:color/white"
+            android:textColor="@color/text_grey"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_centerInParent="true" />

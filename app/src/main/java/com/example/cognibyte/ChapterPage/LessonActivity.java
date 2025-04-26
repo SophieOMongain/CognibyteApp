@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.cognibyte.Adapter.LessonSelectionAdapter;
-import com.example.cognibyte.ChapterPage.CodeQuiz.WeeklyQuizActivity;
 import com.example.cognibyte.HomePage.ChapterActivity;
 import com.example.cognibyte.HomePage.HomeActivity;
 import com.example.cognibyte.HomePage.ProfileActivity;
@@ -54,10 +53,10 @@ public class LessonActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
             Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
-            finish(); return;
+            finish();
+            return;
         }
         userId = user.getUid();
-
         btnBack = findViewById(R.id.btnBack);
         btnHome = findViewById(R.id.btnHome);
         btnProfile = findViewById(R.id.btnProfile);
@@ -134,11 +133,13 @@ public class LessonActivity extends AppCompatActivity {
     private void updateLessonButtons() {
         firestore.collection("UserProgress")
                 .document(userId)
+                .collection("Languages")
+                .document(selectedLanguage)
                 .collection("Chapters")
                 .whereEqualTo("chapterNumber", chapterNumber)
                 .get()
                 .addOnSuccessListener(qs -> {
-                    Map<String,Boolean> done = new HashMap<>();
+                    Map<String, Boolean> done = new HashMap<>();
                     for (DocumentSnapshot d : qs.getDocuments()) {
                         String t = d.getString("lessonTitle");
                         Boolean p = d.getBoolean("progress");
@@ -156,25 +157,28 @@ public class LessonActivity extends AppCompatActivity {
     private void startLesson(String lessonTitle) {
         firestore.collection("UserProgress")
                 .document(userId)
+                .collection("Languages")
+                .document(selectedLanguage)
                 .collection("Chapters")
                 .whereEqualTo("chapterNumber", chapterNumber)
                 .get()
                 .addOnSuccessListener(qs -> {
-                    Map<String,Boolean> done = new HashMap<>();
-                    for (DocumentSnapshot d: qs.getDocuments()) {
+                    Map<String, Boolean> done = new HashMap<>();
+                    for (DocumentSnapshot d : qs.getDocuments()) {
                         String t = d.getString("lessonTitle");
                         Boolean p = d.getBoolean("progress");
-                        if (t!=null && p!=null) done.put(t,p);
+                        if (t != null && p != null) done.put(t, p);
                     }
                     int idx = -1;
                     for (int i = 0; i < lessonItems.size(); i++) {
                         if (lessonItems.get(i).lessonTitle.equals(lessonTitle)) {
-                            idx = i; break;
+                            idx = i;
+                            break;
                         }
                     }
                     if (idx > 0) {
                         String prev = lessonItems.get(idx - 1).lessonTitle;
-                        if (!done.getOrDefault(prev,false)) {
+                        if (!done.getOrDefault(prev, false)) {
                             Toast.makeText(this, "Complete " + prev + " first!", Toast.LENGTH_SHORT).show();
                             return;
                         }
