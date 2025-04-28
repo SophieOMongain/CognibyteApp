@@ -1,72 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:background="@color/background_light_blue">
 
-    <ImageView
-        android:id="@+id/btn_back"
-        android:layout_width="56dp"
-        android:layout_height="40dp"
-        android:contentDescription="@string/back"
-        android:src="@drawable/back" />
+    <ScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="STATS"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/primary_blue"
-        android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/bar_chart_lessons"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginBottom="16dp" />
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="56dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/back"
+                android:src="@drawable/back" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Skill Level:"
-        android:textSize="18sp"
-        android:textColor="@color/primary_blue"
-        android:layout_marginBottom="4dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="STATS"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_blue"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/et_level"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@drawable/rounded_edittext"
-        android:padding="12dp"
-        android:hint="Skill Level"
-        android:enabled="false"
-        android:textColor="@color/dark_gray"
-        android:layout_marginBottom="16dp" />
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/bar_chart_lessons"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginBottom="16dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Language:"
-        android:textSize="18sp"
-        android:textColor="@color/primary_blue"
-        android:layout_marginBottom="4dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Skill Level:"
+                android:textSize="18sp"
+                android:textColor="@color/primary_blue"
+                android:layout_marginBottom="4dp" />
 
-    <EditText
-        android:id="@+id/et_language"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@drawable/rounded_edittext"
-        android:padding="12dp"
-        android:hint="Language"
-        android:enabled="false"
-        android:textColor="@color/dark_gray"
-        android:layout_marginBottom="16dp" />
+            <EditText
+                android:id="@+id/et_level"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:hint="Skill Level"
+                android:enabled="false"
+                android:textColor="@color/dark_gray"
+                android:layout_marginBottom="16dp" />
 
-</LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Language:"
+                android:textSize="18sp"
+                android:textColor="@color/primary_blue"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_language"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:hint="Language"
+                android:enabled="false"
+                android:textColor="@color/dark_gray"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

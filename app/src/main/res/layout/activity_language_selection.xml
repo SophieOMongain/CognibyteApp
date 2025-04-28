@@ -25,10 +25,10 @@
         android:padding="12dp"
         android:textColor="@color/dark_gray"
         android:textColorHint="@color/dark_gray"
-        android:backgroundTint="@color/secondary_blue"
         android:drawableEnd="@android:drawable/ic_menu_search"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/rounded_edittext" />
+        android:background="@drawable/rounded_edittext"
+        android:backgroundTint="@color/secondary_blue" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,59 +36,112 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <Button
-            android:id="@+id/btn_java"
+        <LinearLayout
+            android:id="@+id/layout_java"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/java_icon"
-            android:text="Java"
+            android:orientation="horizontal"
             android:background="@drawable/rounded_button_light"
-            android:layout_marginBottom="10dp"
             android:padding="16dp"
-            android:gravity="start|center_vertical"
-            android:textColor="@color/primary_blue"
-            android:textSize="18sp"/>
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground">
 
-        <Button
-            android:id="@+id/btn_javascript"
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/java_icon"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Java"
+                android:textColor="@color/primary_blue"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_javascript"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/javascript_icon"
-            android:text="JavaScript"
+            android:orientation="horizontal"
             android:background="@drawable/rounded_button_light"
-            android:layout_marginBottom="10dp"
             android:padding="16dp"
-            android:gravity="start|center_vertical"
-            android:textColor="@color/primary_blue"
-            android:textSize="18sp"/>
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground">
 
-        <Button
-            android:id="@+id/btn_python"
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/javascript_icon"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="JavaScript"
+                android:textColor="@color/primary_blue"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_python"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/python_icon"
-            android:text="Python"
+            android:orientation="horizontal"
             android:background="@drawable/rounded_button_light"
-            android:layout_marginBottom="10dp"
             android:padding="16dp"
-            android:gravity="start|center_vertical"
-            android:textColor="@color/primary_blue"
-            android:textSize="18sp"/>
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground">
 
-        <Button
-            android:id="@+id/btn_html"
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/python_icon"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Python"
+                android:textColor="@color/primary_blue"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_html"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/html_icon"
-            android:text="HTML"
+            android:orientation="horizontal"
             android:background="@drawable/rounded_button_light"
-            android:layout_marginBottom="10dp"
             android:padding="16dp"
-            android:gravity="start|center_vertical"
-            android:textColor="@color/primary_blue"
-            android:textSize="18sp"/>
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground">
 
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/html_icon"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HTML"
+                android:textColor="@color/primary_blue"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
-
-

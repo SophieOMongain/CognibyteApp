@@ -18,16 +18,33 @@ public class QuizRecapActivity extends AppCompatActivity {
     private Button btnViewQuizRecap, btnRetakeQuiz;
     private TextView tvQuizRecap;
     private FirebaseFirestore firestore;
-    private String selectedLanguage = "";
-    private String selectedSkillLevel = "";
-    private String selectedChapter = "";
-    private String selectedLesson = "";
+    private String selectedLanguage;
+    private String selectedSkillLevel;
+    private Map<Integer, List<String>> completedChapters = new HashMap<>();
+    private List<Integer> sortedChapterNumbers = new ArrayList<>();
+    private Map<Integer, String> chapterTitleMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_recap);
 
+        initViews();
+        setupFirebase();
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        setupListeners();
+        setupLanguageSpinner();
+        setupSkillLevelSpinner();
+    }
+
+    private void initViews() {
         backArrow = findViewById(R.id.back_arrow);
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
         spinnerSkillLevel = findViewById(R.id.spinnerSkillLevel);
@@ -36,186 +53,133 @@ public class QuizRecapActivity extends AppCompatActivity {
         btnViewQuizRecap = findViewById(R.id.btnViewQuizRecap);
         btnRetakeQuiz = findViewById(R.id.btnRetakeQuiz);
         tvQuizRecap = findViewById(R.id.tvQuizRecap);
+    }
 
+    private void setupFirebase() {
         firestore = FirebaseFirestore.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+    }
 
+    private void setupListeners() {
         backArrow.setOnClickListener(v -> startActivity(
                 new Intent(QuizRecapActivity.this, RecapActivity.class)
-                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        ));
-
-        setupLanguageSpinner();
-        setupSkillLevelSpinner();
-
-        spinnerChapter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedChapter = (String) parent.getItemAtPosition(position);
-                loadLessonTitles(selectedLanguage, selectedChapter);
-            }
-        });
-
-        spinnerLesson.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedLesson = (String) parent.getItemAtPosition(position);
-            }
-        });
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)));
 
         btnViewQuizRecap.setOnClickListener(v -> loadAndDisplayQuiz());
 
         btnRetakeQuiz.setOnClickListener(v -> {
-            if (selectedLanguage.isEmpty() || selectedSkillLevel.isEmpty() || selectedChapter.isEmpty() || selectedLesson.isEmpty()) {
-                Toast.makeText(this, "Please make all selections first", Toast.LENGTH_SHORT).show();
+            String chapter = (String) spinnerChapter.getSelectedItem();
+            String lesson = (String) spinnerLesson.getSelectedItem();
+
+            if (selectedLanguage == null || selectedSkillLevel == null || chapter == null || lesson == null) {
+                Toast.makeText(this, "Please select all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            Intent intent = new Intent(QuizRecapActivity.this, FullQuizRetakeActivity.class);
+            Intent intent = new Intent(this, FullQuizRetakeActivity.class);
             intent.putExtra("language", selectedLanguage);
             intent.putExtra("skill", selectedSkillLevel);
-            intent.putExtra("chapter", selectedChapter);
-            intent.putExtra("lesson", selectedLesson);
+            intent.putExtra("chapter", chapter);
+            intent.putExtra("lesson", lesson);
             startActivity(intent);
         });
     }
 
     private void setupLanguageSpinner() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String userId = user.getUid();
+        firestore.collection("Languages").document(user.getUid()).get().addOnSuccessListener(doc -> {
+            List<String> userLanguages = (List<String>) doc.get("languages");
+            if (userLanguages == null || userLanguages.isEmpty()) return;
 
-        firestore.collection("Languages").document(userId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    List<String> userLanguages = new ArrayList<>();
-                    Object arr = doc.get("languages");
-                    if (arr instanceof List<?>) {
-                        for (Object o : (List<?>) arr) {
-                            if (o instanceof String) userLanguages.add((String) o);
-                        }
-                    }
-                    if (userLanguages.isEmpty()) {
-                        Toast.makeText(this, "No languages added yet", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+            spinnerLanguage.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, userLanguages));
 
-                    ArrayAdapter<String> langAdapter = new ArrayAdapter<>(
-                            this, android.R.layout.simple_spinner_dropdown_item, userLanguages
-                    );
-                    spinnerLanguage.setAdapter(langAdapter);
+            spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    selectedLanguage = userLanguages.get(position);
+                    loadUserProgress(selectedLanguage);
+                }
+                @Override public void onNothingSelected(AdapterView<?> parent) {}
+            });
 
-                    spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override public void onNothingSelected(AdapterView<?> parent) {}
-                        @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            selectedLanguage = userLanguages.get(position);
-                            loadChapterTitles(selectedLanguage);
-                        }
-                    });
-
-                    spinnerLanguage.setSelection(0);
-                    selectedLanguage = userLanguages.get(0);
-                    loadChapterTitles(selectedLanguage);
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error loading languages: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                );
+            spinnerLanguage.setSelection(0);
+            selectedLanguage = userLanguages.get(0);
+            loadUserProgress(selectedLanguage);
+        });
     }
 
     private void setupSkillLevelSpinner() {
         String[] skills = {"Beginner", "Intermediate", "Expert"};
-        ArrayAdapter<String> skillAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_dropdown_item, skills
-        );
-        spinnerSkillLevel.setAdapter(skillAdapter);
+        spinnerSkillLevel.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, skills));
         spinnerSkillLevel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
             @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedSkillLevel = skills[position];
             }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
         spinnerSkillLevel.setSelection(0);
         selectedSkillLevel = skills[0];
     }
 
-    private void loadChapterTitles(String language) {
-        firestore.collection("ChapterContent")
-                .document(language)
-                .collection("Chapters")
-                .get()
-                .addOnSuccessListener(qs -> {
-                    List<String> chapters = new ArrayList<>();
-                    for (DocumentSnapshot d : qs.getDocuments()) {
-                        String title = d.getString("chapterTitle");
-                        if (title != null && !chapters.contains(title)) {
-                            chapters.add(title);
-                        }
+    private void loadUserProgress(String language) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        firestore.collection("UserProgress").document(user.getUid()).collection("Languages")
+                .document(language).collection("Chapters").whereEqualTo("progress", true)
+                .get().addOnSuccessListener(q -> {
+                    completedChapters.clear();
+                    for (DocumentSnapshot d : q.getDocuments()) {
+                        int chapter = d.getLong("chapterNumber").intValue();
+                        String lesson = d.getString("lessonTitle");
+                        completedChapters.computeIfAbsent(chapter, k -> new ArrayList<>()).add(lesson);
                     }
-                    Collections.sort(chapters);
-                    ArrayAdapter<String> chapAdapter = new ArrayAdapter<>(
-                            this, android.R.layout.simple_spinner_dropdown_item, chapters
-                    );
-                    spinnerChapter.setAdapter(chapAdapter);
-                    if (!chapters.isEmpty()) {
-                        spinnerChapter.setSelection(0);
-                        selectedChapter = chapters.get(0);
-                        loadLessonTitles(language, selectedChapter);
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this,
-                                "Error loading chapters: " + e.getMessage(),
-                                Toast.LENGTH_SHORT
-                        ).show()
-                );
+                    sortedChapterNumbers = new ArrayList<>(completedChapters.keySet());
+                    Collections.sort(sortedChapterNumbers);
+                    fetchCompletedChapterTitles(language);
+                });
     }
 
-    private void loadLessonTitles(String language, String chapterTitle) {
-        firestore.collection("ChapterContent")
-                .document(language)
-                .collection("Chapters")
-                .whereEqualTo("chapterTitle", chapterTitle)
-                .get()
-                .addOnSuccessListener(qs -> {
-                    List<String> lessons = new ArrayList<>();
-                    for (DocumentSnapshot d : qs.getDocuments()) {
-                        String lt = d.getString("lessonTitle");
-                        if (lt != null && !lessons.contains(lt)) {
-                            lessons.add(lt);
+    private void fetchCompletedChapterTitles(String language) {
+        chapterTitleMap.clear();
+        for (int chapNum : sortedChapterNumbers) {
+            firestore.collection("ChapterContent").document(language).collection("Chapters")
+                    .whereEqualTo("chapterNumber", chapNum).limit(1).get().addOnSuccessListener(q -> {
+                        if (!q.isEmpty()) {
+                            String title = q.getDocuments().get(0).getString("chapterTitle");
+                            chapterTitleMap.put(chapNum, title);
                         }
-                    }
-                    Collections.sort(lessons);
-                    ArrayAdapter<String> lessonAdapter = new ArrayAdapter<>(
-                            this, android.R.layout.simple_spinner_dropdown_item, lessons
-                    );
-                    spinnerLesson.setAdapter(lessonAdapter);
-                    if (!lessons.isEmpty()) {
-                        spinnerLesson.setSelection(0);
-                        selectedLesson = lessons.get(0);
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this,
-                                "Error loading lessons: " + e.getMessage(),
-                                Toast.LENGTH_SHORT
-                        ).show()
-                );
+                        if (chapterTitleMap.size() == sortedChapterNumbers.size()) populateChapterSpinner();
+                    });
+        }
+    }
+
+    private void populateChapterSpinner() {
+        List<String> titles = new ArrayList<>();
+        sortedChapterNumbers.forEach(num -> titles.add(chapterTitleMap.get(num)));
+
+        spinnerChapter.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, titles));
+        spinnerChapter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                int chapNum = sortedChapterNumbers.get(pos);
+                populateLessonSpinner(chapNum);
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        spinnerChapter.setSelection(0);
+    }
+
+    private void populateLessonSpinner(int chapterNumber) {
+        spinnerLesson.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, completedChapters.get(chapterNumber)));
+        spinnerLesson.setSelection(0);
     }
 
     private void loadAndDisplayQuiz() {
-        if (selectedLanguage.isEmpty() || selectedSkillLevel.isEmpty() || selectedChapter.isEmpty() || selectedLesson.isEmpty()) {
-            Toast.makeText(this,
-                    "Please select language, skill, chapter & lesson",
-                    Toast.LENGTH_SHORT
-            ).show();
+        String selectedChapter = (String) spinnerChapter.getSelectedItem();
+        String selectedLesson = (String) spinnerLesson.getSelectedItem();
+
+        if (selectedLanguage == null || selectedLanguage.isEmpty() ||
+                selectedSkillLevel == null || selectedSkillLevel.isEmpty() ||
+                selectedChapter == null || selectedChapter.isEmpty() ||
+                selectedLesson == null || selectedLesson.isEmpty()) {
+            Toast.makeText(this, "Please select language, skill, chapter & lesson", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -243,8 +207,7 @@ public class QuizRecapActivity extends AppCompatActivity {
                                     displayFromSnapshots(q2.getDocuments());
                                 } else {
                                     @SuppressWarnings("unchecked")
-                                    List<Map<String,Object>> rawQs =
-                                            (List<Map<String,Object>>) quizDoc.get("questions");
+                                    List<Map<String,Object>> rawQs = (List<Map<String,Object>>) quizDoc.get("questions");
                                     if (rawQs != null && !rawQs.isEmpty()) {
                                         displayFromMaps(rawQs);
                                     } else {
@@ -265,10 +228,10 @@ public class QuizRecapActivity extends AppCompatActivity {
         StringBuilder out = new StringBuilder();
         int qNo = 1;
         for (DocumentSnapshot d : docs) {
-            String question    = d.getString("question");
+            String question = d.getString("question");
             @SuppressWarnings("unchecked")
-            List<String> opts  = (List<String>) d.get("options");
-            String answer      = d.getString("answer");
+            List<String> opts = (List<String>) d.get("options");
+            String answer = d.getString("answer");
             String explanation = d.getString("explanation");
 
             out.append(qNo++).append(". ").append(question).append("\n");
@@ -277,8 +240,7 @@ public class QuizRecapActivity extends AppCompatActivity {
                 out.append("   ").append(label++).append(") ").append(o).append("\n");
             }
             out.append("Answer: ").append(answer).append("\n")
-                    .append("Explanation: ").append(explanation)
-                    .append("\n\n");
+                    .append("Explanation: ").append(explanation).append("\n\n");
         }
         tvQuizRecap.setText(out.toString().trim());
     }
@@ -287,10 +249,10 @@ public class QuizRecapActivity extends AppCompatActivity {
         StringBuilder out = new StringBuilder();
         int qNo = 1;
         for (Map<String,Object> q : rawQs) {
-            String question    = (String) q.get("question");
+            String question = (String) q.get("question");
             @SuppressWarnings("unchecked")
-            List<String> opts  = (List<String>) q.get("options");
-            String answer      = (String) q.get("answer");
+            List<String> opts = (List<String>) q.get("options");
+            String answer = (String) q.get("answer");
             String explanation = (String) q.get("explanation");
 
             out.append(qNo++).append(". ").append(question).append("\n");
@@ -299,8 +261,7 @@ public class QuizRecapActivity extends AppCompatActivity {
                 out.append("   ").append(label++).append(") ").append(o).append("\n");
             }
             out.append("Answer: ").append(answer).append("\n")
-                    .append("Explanation: ").append(explanation)
-                    .append("\n\n");
+                    .append("Explanation: ").append(explanation).append("\n\n");
         }
         tvQuizRecap.setText(out.toString().trim());
     }

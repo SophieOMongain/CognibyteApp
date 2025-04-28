@@ -9,7 +9,6 @@ import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
-
 import java.util.*;
 
 public class LessonRecapActivity extends AppCompatActivity {
@@ -18,11 +17,9 @@ public class LessonRecapActivity extends AppCompatActivity {
     private Spinner spinnerLanguage, chapterSpinner, lessonSpinner;
     private Button btnViewLessonRecap;
     private TextView tvLessonRecap;
-
     private FirebaseFirestore firestore;
     private String userId;
     private String selectedLanguage = "";
-
     private final Map<Integer, List<String>> completedMap = new HashMap<>();
     private List<Integer> sortedChapters = new ArrayList<>();
     private final Map<Integer, String> chapterTitleMap = new HashMap<>();
@@ -41,6 +38,7 @@ public class LessonRecapActivity extends AppCompatActivity {
 
         firestore = FirebaseFirestore.getInstance();
         FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
+
         if (u == null) {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
@@ -55,7 +53,6 @@ public class LessonRecapActivity extends AppCompatActivity {
         });
 
         btnViewLessonRecap.setOnClickListener(v -> fetchRecap());
-
         setupLanguageSpinner();
     }
 
@@ -75,11 +72,8 @@ public class LessonRecapActivity extends AppCompatActivity {
                         return;
                     }
 
-                    ArrayAdapter<String> langAdapter = new ArrayAdapter<>(
-                            this, android.R.layout.simple_spinner_dropdown_item, userLanguages
-                    );
+                    ArrayAdapter<String> langAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, userLanguages);
                     spinnerLanguage.setAdapter(langAdapter);
-
                     spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override public void onNothingSelected(AdapterView<?> parent) {}
                         @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -100,6 +94,8 @@ public class LessonRecapActivity extends AppCompatActivity {
     private void loadUserProgress() {
         firestore.collection("UserProgress")
                 .document(userId)
+                .collection("Languages")
+                .document(selectedLanguage)
                 .collection("Chapters")
                 .whereEqualTo("progress", true)
                 .get()
@@ -110,9 +106,7 @@ public class LessonRecapActivity extends AppCompatActivity {
                         String lt = d.getString("lessonTitle");
                         if (chapL == null || lt == null) continue;
                         int chap = chapL.intValue();
-                        completedMap
-                                .computeIfAbsent(chap, k -> new ArrayList<>())
-                                .add(lt);
+                        completedMap.computeIfAbsent(chap, k -> new ArrayList<>()).add(lt);
                     }
                     if (completedMap.isEmpty()) {
                         Toast.makeText(this, "No completed lessons yet.", Toast.LENGTH_SHORT).show();
@@ -123,8 +117,7 @@ public class LessonRecapActivity extends AppCompatActivity {
                     fetchChapterTitles();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error loading progress: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Error loading progress: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                 );
     }
 
@@ -139,8 +132,7 @@ public class LessonRecapActivity extends AppCompatActivity {
                     .get()
                     .addOnSuccessListener(qs -> {
                         if (!qs.isEmpty()) {
-                            DocumentSnapshot d = qs.getDocuments().get(0);
-                            String ct = d.getString("chapterTitle");
+                            String ct = qs.getDocuments().get(0).getString("chapterTitle");
                             if (ct != null) chapterTitleMap.put(chapNum, ct);
                         }
                         if (chapterTitleMap.size() == sortedChapters.size()) {
@@ -148,8 +140,7 @@ public class LessonRecapActivity extends AppCompatActivity {
                         }
                     })
                     .addOnFailureListener(e ->
-                            Toast.makeText(this, "Error fetching title for chap " + chapNum,
-                                    Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Error fetching title for chap " + chapNum, Toast.LENGTH_SHORT).show()
                     );
         }
     }
@@ -159,9 +150,7 @@ public class LessonRecapActivity extends AppCompatActivity {
         for (int chapNum : sortedChapters) {
             titles.add(chapterTitleMap.getOrDefault(chapNum, "Chapter " + chapNum));
         }
-        ArrayAdapter<String> ca = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, titles
-        );
+        ArrayAdapter<String> ca = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, titles);
         ca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         chapterSpinner.setAdapter(ca);
 
@@ -196,16 +185,13 @@ public class LessonRecapActivity extends AppCompatActivity {
                     List<String> sortedTitles = new ArrayList<>();
                     for (Pair<Integer, String> p : pairs) sortedTitles.add(p.second);
 
-                    ArrayAdapter<String> la = new ArrayAdapter<>(
-                            this, android.R.layout.simple_spinner_item, sortedTitles
-                    );
+                    ArrayAdapter<String> la = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sortedTitles);
                     la.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     lessonSpinner.setAdapter(la);
                     if (!sortedTitles.isEmpty()) lessonSpinner.setSelection(0);
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Error loading lessons: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Error loading lessons: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                 );
     }
 
@@ -230,11 +216,7 @@ public class LessonRecapActivity extends AppCompatActivity {
                         tvLessonRecap.setText("No recap found.");
                     } else {
                         String recap = qs.getDocuments().get(0).getString("lessonRecap");
-                        tvLessonRecap.setText(
-                                (recap == null || recap.isEmpty())
-                                        ? "No recap available."
-                                        : recap
-                        );
+                        tvLessonRecap.setText((recap == null || recap.isEmpty()) ? "No recap available." : recap);
                     }
                 })
                 .addOnFailureListener(e ->
@@ -243,7 +225,11 @@ public class LessonRecapActivity extends AppCompatActivity {
     }
 
     private static class Pair<F, S> {
-        final F first; final S second;
-        Pair(F f, S s) { first = f; second = s; }
+        final F first;
+        final S second;
+        Pair(F f, S s) {
+            first = f;
+            second = s;
+        }
     }
 }

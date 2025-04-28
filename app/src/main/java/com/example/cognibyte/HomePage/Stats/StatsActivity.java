@@ -17,29 +17,43 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.*;
-import java.util.*;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class StatsActivity extends AppCompatActivity {
+    private static final String TAG = "StatsActivity";
 
     private BarChart barChartLessons;
     private EditText etLevel, etLanguage;
     private ImageView btnBack;
     private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
-    private static final String TAG = "StatsActivity";
+    private String selectedLanguage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
 
-        mAuth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
+        selectedLanguage = getIntent().getStringExtra("selectedLanguage");
+
         barChartLessons = findViewById(R.id.bar_chart_lessons);
         etLevel = findViewById(R.id.et_level);
         etLanguage = findViewById(R.id.et_language);
         btnBack = findViewById(R.id.btn_back);
+
+        if (selectedLanguage != null && !selectedLanguage.isEmpty()) {
+            etLanguage.setText(selectedLanguage);
+        }
+
+        mAuth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
+
         barChartLessons.setNoDataText("No data for the chart yet!");
         barChartLessons.setBackgroundColor(Color.WHITE);
         barChartLessons.getDescription().setEnabled(false);
@@ -48,8 +62,7 @@ public class StatsActivity extends AppCompatActivity {
         loadLessonProgressData();
 
         btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(StatsActivity.this, HomeActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(StatsActivity.this, HomeActivity.class));
             finish();
         });
     }
@@ -57,31 +70,31 @@ public class StatsActivity extends AppCompatActivity {
     private void loadUserData() {
         if (mAuth.getCurrentUser() == null) {
             etLevel.setText("Not logged in");
-            etLanguage.setText("Unknown");
+            if (etLanguage.getText().toString().isEmpty()) {
+                etLanguage.setText("Unknown");
+            }
             return;
         }
 
         String uid = mAuth.getCurrentUser().getUid();
-        Log.d(TAG, "Loading user data for UID: " + uid);
+        firestore.collection("Languages")
+                .document(uid)
+                .get()
+                .addOnSuccessListener((DocumentSnapshot doc) -> {
+                    String skill = doc.getString("skillLevel");
+                    etLevel.setText(skill != null ? skill : "Unknown");
 
-        firestore.collection("Languages").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String skillLevel = documentSnapshot.getString("skillLevel");
-                        String language = documentSnapshot.getString("language");
-                        Log.d(TAG, "User skill level: " + skillLevel + ", language: " + language);
-                        etLevel.setText(skillLevel != null ? skillLevel : "Unknown");
-                        etLanguage.setText(language != null ? language : "Unknown");
-                    } else {
-                        etLevel.setText("Unknown");
-                        etLanguage.setText("Unknown");
-                        Log.w(TAG, "No Languages document found for UID " + uid);
+                    if (etLanguage.getText().toString().isEmpty()) {
+                        String lang = doc.getString("language");
+                        etLanguage.setText(lang != null ? lang : "Unknown");
                     }
                 })
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed loading user data", e);
                     etLevel.setText("Error");
-                    etLanguage.setText("Error");
-                    Log.e(TAG, "Failed to load language/skill data: ", e);
+                    if (etLanguage.getText().toString().isEmpty()) {
+                        etLanguage.setText("Error");
+                    }
                 });
     }
 
@@ -92,58 +105,51 @@ public class StatsActivity extends AppCompatActivity {
         }
 
         String uid = mAuth.getCurrentUser().getUid();
-        Log.d(TAG, "Loading lesson progress for UID: " + uid);
-
         firestore.collection("UserProgress")
                 .document(uid)
                 .collection("Chapters")
                 .get()
                 .addOnSuccessListener(qs -> {
-                    Map<Integer, Integer> chapterLessonCount = new HashMap<>();
-
-                    for (DocumentSnapshot doc : qs.getDocuments()) {
-                        Boolean isDone = doc.getBoolean("progress");
-                        Long chapterNum = doc.getLong("chapterNumber");
-
-                        if (Boolean.TRUE.equals(isDone) && chapterNum != null) {
-                            int num = chapterNum.intValue();
-                            chapterLessonCount.put(num, chapterLessonCount.getOrDefault(num, 0) + 1);
+                    Map<Integer, Integer> counts = new HashMap<>();
+                    for (DocumentSnapshot d : qs.getDocuments()) {
+                        Boolean done = d.getBoolean("progress");
+                        Long cnum = d.getLong("chapterNumber");
+                        if (Boolean.TRUE.equals(done) && cnum != null) {
+                            int chap = cnum.intValue();
+                            counts.put(chap, counts.getOrDefault(chap, 0) + 1);
                         }
                     }
 
                     List<BarEntry> entries = new ArrayList<>();
-
-                    for (Map.Entry<Integer, Integer> entry : chapterLessonCount.entrySet()) {
-                        entries.add(new BarEntry(entry.getKey(), entry.getValue()));
+                    for (Map.Entry<Integer, Integer> e : counts.entrySet()) {
+                        entries.add(new BarEntry(e.getKey(), e.getValue()));
                     }
-
                     entries.sort(Comparator.comparing(BarEntry::getX));
 
                     if (!entries.isEmpty()) {
-                        BarDataSet dataSet = new BarDataSet(entries, "Lessons Completed");
-                        dataSet.setColor(ContextCompat.getColor(this, R.color.primary_blue));
-                        BarData barData = new BarData(dataSet);
-                        barData.setBarWidth(0.9f);
+                        BarDataSet set = new BarDataSet(entries, "Lessons Completed");
+                        set.setColor(ContextCompat.getColor(this, R.color.primary_blue));
+                        BarData data = new BarData(set);
+                        data.setBarWidth(0.9f);
 
-                        barChartLessons.setData(barData);
+                        barChartLessons.setData(data);
                         barChartLessons.setFitBars(true);
 
-                        XAxis xAxis = barChartLessons.getXAxis();
-                        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-                        xAxis.setGranularity(1f);
-                        xAxis.setLabelCount(entries.size(), true);
+                        XAxis x = barChartLessons.getXAxis();
+                        x.setPosition(XAxis.XAxisPosition.BOTTOM);
+                        x.setGranularity(1f);
+                        x.setLabelCount(entries.size(), true);
 
                         barChartLessons.invalidate();
-                        Log.d(TAG, "Bar chart updated with " + entries.size() + " entries.");
                     } else {
-                        Toast.makeText(StatsActivity.this, "No lessons completed yet!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "No lessons completed yet!", Toast.LENGTH_SHORT).show();
                         barChartLessons.clear();
                         barChartLessons.setNoDataText("No lessons completed yet!");
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(StatsActivity.this, "Error loading data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Error loading data from UserProgress: ", e);
+                    Log.e(TAG, "Error loading progress data", e);
+                    Toast.makeText(this, "Error loading data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     barChartLessons.clear();
                     barChartLessons.setNoDataText("Error loading data!");
                 });

@@ -64,6 +64,31 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Choose Language and Skill"
+                android:textStyle="bold"
+                android:textColor="#0D2C54"
+                android:textSize="16sp" />
+
+            <Spinner
+                android:id="@+id/spinnerLanguage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:spinnerMode="dropdown"
+                android:popupBackground="@color/white" />
+
+            <Spinner
+                android:id="@+id/spinnerSkillLevel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:spinnerMode="dropdown"
+                android:popupBackground="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:text="Choose Chapter and Lesson"
                 android:textStyle="bold"
                 android:textColor="#0D2C54"
@@ -73,34 +98,17 @@
                 android:id="@+id/spinnerChapter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                android:spinnerMode="dropdown"
+                android:popupBackground="@color/white" />
 
             <Spinner
                 android:id="@+id/spinnerLesson"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Choose Language and Skill"
-                android:textStyle="bold"
-                android:textColor="#0D2C54"
-                android:textSize="16sp"
-                android:layout_marginTop="16dp" />
-
-            <Spinner
-                android:id="@+id/spinnerLanguage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
-
-            <Spinner
-                android:id="@+id/spinnerSkillLevel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                android:spinnerMode="dropdown"
+                android:popupBackground="@color/white" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

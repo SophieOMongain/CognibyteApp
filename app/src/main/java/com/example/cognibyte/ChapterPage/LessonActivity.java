@@ -37,10 +37,11 @@ public class LessonActivity extends AppCompatActivity {
     private TextView tvChapterTitle;
     private RecyclerView recyclerViewLessons;
     private LessonSelectionAdapter lessonAdapter;
-    private List<LessonCompleted> lessonItems = new ArrayList<>();
+    private final List<LessonCompleted> lessonItems = new ArrayList<>();
     private FirebaseFirestore firestore;
     private FirebaseAuth mAuth;
-    private String userId, selectedLanguage, skillLevel;
+    private String userId;
+    private String selectedLanguage, skillLevel;
     private int chapterNumber;
 
     @Override
@@ -69,7 +70,6 @@ public class LessonActivity extends AppCompatActivity {
             startActivity(new Intent(LessonActivity.this, ChapterActivity.class));
             finish();
         });
-
         btnHome.setOnClickListener(v -> startActivity(new Intent(this, HomeActivity.class)));
         btnProfile.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
         btnStats.setOnClickListener(v -> startActivity(new Intent(this, StatsActivity.class)));
@@ -77,27 +77,58 @@ public class LessonActivity extends AppCompatActivity {
 
         chapterNumber = getIntent().getIntExtra("chapterNumber", 1);
         tvChapterTitle.setText("CHAPTER " + chapterNumber);
+
+        String intentLang = getIntent().getStringExtra("language");
+        String intentLevel = getIntent().getStringExtra("skillLevel");
+        if (intentLang != null && intentLevel != null) {
+            selectedLanguage = intentLang;
+            skillLevel = intentLevel;
+            initLessonList();
+        } else {
+            loadUserSelectedLanguageAndSkillLevel();
+        }
+    }
+
+    private void loadUserSelectedLanguageAndSkillLevel() {
+        firestore.collection("Languages")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    String lang = doc.getString("language");
+                    String skill = doc.getString("skillLevel");
+
+                    List<String> langsList = new ArrayList<>();
+                    Object obj = doc.get("languages");
+                    if (obj instanceof List<?>) {
+                        for (Object o : (List<?>) obj) {
+                            if (o instanceof String) langsList.add((String) o);
+                        }
+                    }
+
+                    if (lang == null && !langsList.isEmpty()) {
+                        lang = langsList.get(0);
+                    }
+
+                    if (lang == null || skill == null) {
+                        Toast.makeText(this, "Select a language & level first.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    selectedLanguage = lang;
+                    skillLevel = skill;
+                    initLessonList();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading language prefs", e);
+                    Toast.makeText(this, "Error loading settings.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void initLessonList() {
         lessonAdapter = new LessonSelectionAdapter(lessonItems, this::startLesson);
         recyclerViewLessons.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewLessons.setAdapter(lessonAdapter);
-
-        firestore.collection("Languages").document(userId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists() &&
-                            doc.contains("language") &&
-                            doc.contains("skillLevel")) {
-                        selectedLanguage = doc.getString("language");
-                        skillLevel = doc.getString("skillLevel");
-                        loadLessons();
-                    } else {
-                        Toast.makeText(this, "Select a language & level first.", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed loading prefs", e);
-                    Toast.makeText(this, "Error loading settings.", Toast.LENGTH_SHORT).show();
-                });
+        loadLessons();
     }
 
     private void loadLessons() {
@@ -115,12 +146,8 @@ public class LessonActivity extends AppCompatActivity {
 
     private void onLessonsFetched(QuerySnapshot snaps) {
         lessonItems.clear();
-
         List<DocumentSnapshot> docs = new ArrayList<>(snaps.getDocuments());
-        Collections.sort(docs, Comparator.comparingInt(d ->
-                d.getLong("lessonNumber").intValue()
-        ));
-
+        Collections.sort(docs, Comparator.comparingInt(d -> d.getLong("lessonNumber").intValue()));
         for (int i = 0; i < docs.size(); i++) {
             String title = docs.get(i).getString("lessonTitle");
             boolean enabled = (i == 0);
@@ -146,8 +173,8 @@ public class LessonActivity extends AppCompatActivity {
                         if (t != null && p != null) done.put(t, p);
                     }
                     for (int i = 1; i < lessonItems.size(); i++) {
-                        String prevTitle = lessonItems.get(i - 1).lessonTitle;
-                        lessonItems.get(i).isEnabled = done.getOrDefault(prevTitle, false);
+                        String prev = lessonItems.get(i - 1).lessonTitle;
+                        lessonItems.get(i).isEnabled = done.getOrDefault(prev, false);
                     }
                     lessonAdapter.notifyDataSetChanged();
                 })

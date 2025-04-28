@@ -4,12 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F1F5F7">
+    android:background="@color/text_grey">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="97dp"
-        android:background="#B0CDE4"
+        android:background="@color/secondary_blue"
         android:padding="16dp">
 
         <ImageView
@@ -27,8 +27,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="Recap Section"
-            android:textColor="#0D2C54"
-            android:textSize="22sp"
+            android:textColor="@color/primary_blue"
+            android:textSize="30sp"
             android:textStyle="bold"/>
     </RelativeLayout>
 
@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Lesson Recap"
-                android:textColor="#0D2C54"
+                android:textColor="@color/primary_blue"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Quiz Recap"
-                android:textColor="#0D2C54"
+                android:textColor="@color/primary_blue"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 

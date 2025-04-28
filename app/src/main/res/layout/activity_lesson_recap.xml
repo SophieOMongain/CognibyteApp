@@ -9,14 +9,12 @@
     android:background="#FAFAFA"
     tools:context=".HomePage.Recap.LessonRecapActivity">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="#B0CDE4"
+        android:layout_height="77dp"
+        android:background="@color/secondary_blue"
         android:padding="16dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -26,28 +24,33 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/back"
-            android:contentDescription="Back" />
+            android:contentDescription="Back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/tvHeaderTitle"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:gravity="center"
             android:text="LESSON RECAPS"
-            android:textColor="#0D2C54"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:textColor="@color/primary_blue"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <androidx.cardview.widget.CardView
         android:id="@+id/filterCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardElevation="4dp"
         app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
         app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -62,46 +65,51 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Select Language"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#0D2C54"
-                android:textSize="16sp" />
+                android:textColor="#0D2C54" />
 
             <Spinner
                 android:id="@+id/spinnerLanguage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                android:spinnerMode="dropdown"
+                android:popupBackground="@color/white" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:text="Select Chapter"
-                android:textStyle="bold"
-                android:textColor="#0D2C54"
                 android:textSize="16sp"
-                android:layout_marginTop="16dp" />
+                android:textStyle="bold"
+                android:textColor="#0D2C54" />
 
             <Spinner
                 android:id="@+id/spinnerChapter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                android:spinnerMode="dropdown"
+                android:popupBackground="@color/white" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:text="Select Lesson"
-                android:textStyle="bold"
-                android:textColor="#0D2C54"
                 android:textSize="16sp"
-                android:layout_marginTop="16dp" />
+                android:textStyle="bold"
+                android:textColor="#0D2C54" />
 
             <Spinner
                 android:id="@+id/spinnerLesson"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
-
+                android:layout_marginTop="8dp"
+                android:spinnerMode="dropdown"
+                android:popupBackground="@color/white" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -110,14 +118,14 @@
         style="@style/NoTintButton"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_button_dark"
         android:text="View Lesson Recap"
-        android:textColor="@color/text_grey"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/text_grey"
         app:layout_constraintTop_toBottomOf="@id/filterCard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -126,11 +134,11 @@
         android:id="@+id/scrollLessonRecap"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_margin="16dp"
         app:layout_constraintTop_toBottomOf="@id/btnViewLessonRecap"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
             android:id="@+id/tvLessonRecap"
@@ -143,5 +151,4 @@
             android:lineSpacingExtra="6dp"
             android:text="Lesson recap will appear here..." />
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,15 +21,22 @@ public class ManageLanguageActivity extends AppCompatActivity {
 
     private RecyclerView rvLanguages;
     private Spinner spinnerNewLanguage;
-    private Button btnAddLanguage;
+    private Button btnChangeSkillLevel, btnAddLanguage;
     private ImageView btnBack;
+    private TextView tvCurrentSkillValue;
+
     private FirebaseFirestore db;
     private String userUid;
+
     private List<String> userLanguages = new ArrayList<>();
     private String currentLanguage;
+    private String currentSkillLevel;
 
     private static final String[] ALL_LANGUAGES = {
             "Java", "Python", "HTML", "JavaScript"
+    };
+    private static final String[] ALL_SKILLS = {
+            "Beginner", "Intermediate", "Expert"
     };
 
     @Override
@@ -39,18 +46,34 @@ public class ManageLanguageActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         rvLanguages = findViewById(R.id.rvLanguages);
         spinnerNewLanguage = findViewById(R.id.spinnerNewLanguage);
+        btnChangeSkillLevel = findViewById(R.id.btnChangeSkillLevel);
         btnAddLanguage = findViewById(R.id.btnAddLanguage);
         btnBack = findViewById(R.id.btn_back);
+        tvCurrentSkillValue = findViewById(R.id.tvCurrentSkillValue);
 
         btnBack.setOnClickListener(v -> {
-            startActivity(new Intent(this, ChapterActivity.class));
+            startActivity(new Intent(this, HomeActivity.class));
             finish();
         });
 
         rvLanguages.setLayoutManager(new LinearLayoutManager(this));
         rvLanguages.setAdapter(new LangAdapter());
+
+        btnChangeSkillLevel.setOnClickListener(v -> {
+            int checked = Arrays.asList(ALL_SKILLS).indexOf(currentSkillLevel);
+            new AlertDialog.Builder(this)
+                    .setTitle("Select Skill Level")
+                    .setSingleChoiceItems(ALL_SKILLS, checked, (dialog, which) -> {
+                        currentSkillLevel = ALL_SKILLS[which];
+                    })
+                    .setPositiveButton("OK", (dialog, which) -> saveToFirestore())
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+
         loadFromFirestore();
     }
 
@@ -63,16 +86,18 @@ public class ManageLanguageActivity extends AppCompatActivity {
                     Object arr = doc.get("languages");
                     if (arr instanceof List<?>) {
                         for (Object o : (List<?>) arr) {
-                            if (o instanceof String) {
-                                userLanguages.add((String) o);
-                            }
+                            if (o instanceof String) userLanguages.add((String) o);
                         }
                     }
-
-                    String prim = doc.getString("language");
-                    currentLanguage = prim != null
-                            ? prim
-                            : (userLanguages.isEmpty() ? ALL_LANGUAGES[0] : userLanguages.get(0));
+                    currentLanguage = doc.getString("language");
+                    currentSkillLevel = doc.getString("skillLevel");
+                    if (currentLanguage == null && !userLanguages.isEmpty()) {
+                        currentLanguage = userLanguages.get(0);
+                    }
+                    if (currentSkillLevel == null) {
+                        currentSkillLevel = ALL_SKILLS[0];
+                    }
+                    tvCurrentSkillValue.setText(currentSkillLevel);
 
                     List<String> toAdd = new ArrayList<>();
                     for (String s : ALL_LANGUAGES) {
@@ -84,7 +109,6 @@ public class ManageLanguageActivity extends AppCompatActivity {
                     } else {
                         btnAddLanguage.setEnabled(true);
                     }
-
                     ArrayAdapter<String> spAdapter = new ArrayAdapter<>(
                             this, android.R.layout.simple_spinner_item, toAdd
                     );
@@ -103,8 +127,9 @@ public class ManageLanguageActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this,
-                                "Failed loading languages: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show()
+                                "Failed loading settings: " + e.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show()
                 );
     }
 
@@ -112,6 +137,7 @@ public class ManageLanguageActivity extends AppCompatActivity {
         Map<String, Object> payload = new HashMap<>();
         payload.put("languages", userLanguages);
         payload.put("language", currentLanguage);
+        payload.put("skillLevel", currentSkillLevel);
 
         db.collection("Languages")
                 .document(userUid)
@@ -120,7 +146,8 @@ public class ManageLanguageActivity extends AppCompatActivity {
                 .addOnFailureListener(e ->
                         Toast.makeText(this,
                                 "Error saving: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show()
+                                Toast.LENGTH_LONG
+                        ).show()
                 );
     }
 
@@ -132,11 +159,9 @@ public class ManageLanguageActivity extends AppCompatActivity {
                     .inflate(R.layout.item_manage_language, parent, false);
             return new VH(v);
         }
-
         @Override
         public void onBindViewHolder(@NonNull VH h, int pos) {
             String lang = userLanguages.get(pos);
-
             h.tvName.setText(lang);
             h.rbPrimary.setChecked(lang.equals(currentLanguage));
             h.ivLogo.setImageResource(getLogoRes(lang));
@@ -145,12 +170,10 @@ public class ManageLanguageActivity extends AppCompatActivity {
                 currentLanguage = lang;
                 saveToFirestore();
             });
-
             h.itemView.setOnClickListener(v -> {
                 currentLanguage = lang;
                 saveToFirestore();
             });
-
             h.ivDelete.setOnClickListener(v -> {
                 new AlertDialog.Builder(ManageLanguageActivity.this)
                         .setTitle("Remove Language")
@@ -168,9 +191,7 @@ public class ManageLanguageActivity extends AppCompatActivity {
                         .show();
             });
         }
-
-        @Override
-        public int getItemCount() {
+        @Override public int getItemCount() {
             return userLanguages.size();
         }
 
@@ -178,7 +199,6 @@ public class ManageLanguageActivity extends AppCompatActivity {
             ImageView ivLogo, ivDelete;
             TextView tvName;
             RadioButton rbPrimary;
-
             VH(View v) {
                 super(v);
                 ivLogo = v.findViewById(R.id.ivLangLogo);
@@ -190,16 +210,11 @@ public class ManageLanguageActivity extends AppCompatActivity {
 
         private int getLogoRes(String language) {
             switch (language.toLowerCase()) {
-                case "java":
-                    return R.drawable.java_icon;
-                case "python":
-                    return R.drawable.python_icon;
-                case "html":
-                    return R.drawable.html_icon;
-                case "javascript":
-                    return R.drawable.javascript_icon;
-                default:
-                    return R.drawable.code_icon2;
+                case "java": return R.drawable.java_icon;
+                case "python": return R.drawable.python_icon;
+                case "html": return R.drawable.html_icon;
+                case "javascript": return R.drawable.javascript_icon;
+                default: return R.drawable.code_icon2;
             }
         }
     }

@@ -26,7 +26,7 @@ public class ChapterActivity extends AppCompatActivity {
 
     private Spinner spinnerLanguage;
     private ImageView imgLanguageLogo;
-    private Button btnChapter1, btnChapter2, btnChapter3, btnChapter4;
+    private Button btnChapter1, btnChapter2, btnChapter3, btnChapter4, btnChapter5;
     private ImageView btnHome, btnProfile, btnStats, btnCodeQuiz;
     private FirebaseFirestore firestore;
     private String userId;
@@ -47,14 +47,15 @@ public class ChapterActivity extends AppCompatActivity {
             finish();
             return;
         }
-        userId = user.getUid();
 
+        userId = user.getUid();
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
         imgLanguageLogo = findViewById(R.id.imgLanguageLogo);
         btnChapter1 = findViewById(R.id.btnChapter1);
         btnChapter2 = findViewById(R.id.btnChapter2);
         btnChapter3 = findViewById(R.id.btnChapter3);
         btnChapter4 = findViewById(R.id.btnChapter4);
+        btnChapter5 = findViewById(R.id.btnChapter5);
         btnHome = findViewById(R.id.btnHome);
         btnProfile = findViewById(R.id.btnProfile);
         btnStats = findViewById(R.id.btnStats);
@@ -76,6 +77,7 @@ public class ChapterActivity extends AppCompatActivity {
         btnChapter2.setOnClickListener(v -> startChapter(2));
         btnChapter3.setOnClickListener(v -> startChapter(3));
         btnChapter4.setOnClickListener(v -> startChapter(4));
+        btnChapter5.setOnClickListener(v -> startChapter(5));
         btnHome.setOnClickListener(v -> navigateTo(HomeActivity.class));
         btnProfile.setOnClickListener(v -> navigateTo(ProfileActivity.class));
         btnStats.setOnClickListener(v -> navigateTo(StatsPageActivity.class));
@@ -180,6 +182,7 @@ public class ChapterActivity extends AppCompatActivity {
         unlockIfPrevDone.accept(btnChapter2, 1);
         unlockIfPrevDone.accept(btnChapter3, 2);
         unlockIfPrevDone.accept(btnChapter4, 3);
+        unlockIfPrevDone.accept(btnChapter5, 4);
     }
 
     private void startChapter(int num) {
