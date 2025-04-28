@@ -27,11 +27,7 @@ public class RecapActivity extends AppCompatActivity {
         arrowLesson = findViewById(R.id.arrow_lesson);
         arrowQuiz = findViewById(R.id.arrow_quiz);
 
-        backArrow.setOnClickListener(v -> {
-            Intent intent = new Intent(RecapActivity.this, HomeActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        });
+        backArrow.setOnClickListener(v -> finish());
 
         btnLessonRecap.setOnClickListener(v -> {
             Intent intent = new Intent(RecapActivity.this, LessonRecapActivity.class);

@@ -30,7 +30,7 @@ public class StatsPageActivity extends AppCompatActivity {
     private TextView tvOverallPct;
     private Button btnViewStats, btnViewQuizStats;
     private ImageView btnBack;
-    private ImageView btnHome, btnCodeQuiz, btnStatsNav, btnProfile;
+    private ImageView btnHome, btnCodeQuiz, btnChapter, btnProfile;
     private final List<String> userLanguages = new ArrayList<>();
     private String selectedLanguage;
     private static final int TOTAL_CHAPTERS = 5;
@@ -49,7 +49,7 @@ public class StatsPageActivity extends AppCompatActivity {
         btnViewQuizStats = findViewById(R.id.btnViewQuizStats);
         btnHome = findViewById(R.id.btnHome);
         btnCodeQuiz = findViewById(R.id.btncodeQuiz);
-        btnStatsNav = findViewById(R.id.btnStats);
+        btnChapter = findViewById(R.id.btnChapter);
         btnProfile = findViewById(R.id.btnProfile);
 
         firestore = FirebaseFirestore.getInstance();
@@ -65,7 +65,7 @@ public class StatsPageActivity extends AppCompatActivity {
         btnViewQuizStats.setOnClickListener(v -> startActivity(new Intent(this, QuizStatsActivity.class)));
         btnHome.setOnClickListener(v -> startActivity(new Intent(this, HomeActivity.class)));
         btnCodeQuiz.setOnClickListener(v -> startActivity(new Intent(this, RecapActivity.class)));
-        btnStatsNav.setOnClickListener(v -> {});
+        btnChapter.setOnClickListener(v -> startActivity(new Intent(this, com.example.cognibyte.HomePage.ChapterActivity.class)));
         btnProfile.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
 
         setupLanguageSpinner();

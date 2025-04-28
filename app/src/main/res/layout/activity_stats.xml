@@ -10,6 +10,7 @@
         android:id="@+id/scrollContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:fillViewport="true"
         android:padding="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -23,26 +24,40 @@
 
             <ImageView
                 android:id="@+id/btn_back"
-                android:layout_width="56dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:contentDescription="@string/back"
-                android:src="@drawable/back" />
+                android:src="@drawable/back"
+                android:layout_gravity="start"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="true" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="STATS"
-                android:textSize="24sp"
+                android:textSize="26sp"
                 android:textStyle="bold"
                 android:textColor="@color/primary_blue"
                 android:gravity="center"
                 android:layout_marginBottom="16dp" />
 
+            <Spinner
+                android:id="@+id/spinnerLanguageStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/rounded_edittext"
+                android:padding="8dp" />
+
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/bar_chart_lessons"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_height="350dp"
+                android:background="@color/white"
+                android:layout_marginBottom="24dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -50,7 +65,7 @@
                 android:text="Skill Level:"
                 android:textSize="18sp"
                 android:textColor="@color/primary_blue"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginBottom="8dp" />
 
             <EditText
                 android:id="@+id/et_level"
@@ -61,26 +76,8 @@
                 android:hint="Skill Level"
                 android:enabled="false"
                 android:textColor="@color/dark_gray"
-                android:layout_marginBottom="16dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Language:"
-                android:textSize="18sp"
-                android:textColor="@color/primary_blue"
-                android:layout_marginBottom="4dp" />
-
-            <EditText
-                android:id="@+id/et_language"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/rounded_edittext"
-                android:padding="12dp"
-                android:hint="Language"
-                android:enabled="false"
-                android:textColor="@color/dark_gray"
-                android:layout_marginBottom="16dp" />
+                android:textSize="16sp"
+                android:layout_marginBottom="24dp" />
 
         </LinearLayout>
     </ScrollView>

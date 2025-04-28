@@ -16,6 +16,7 @@ import com.example.cognibyte.HomePage.Stats.StatsPageActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,6 +124,7 @@ public class ChapterActivity extends AppCompatActivity {
 
                     imgLanguageLogo.setImageResource(getLanguageIcon(selectedLanguage));
                     updateChapterButtons();
+                    loadChapterTitles();
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error loading language data", e);
@@ -139,6 +141,7 @@ public class ChapterActivity extends AppCompatActivity {
                     imgLanguageLogo.setImageResource(getLanguageIcon(newLang));
                     Toast.makeText(this, "Switched to " + newLang, Toast.LENGTH_SHORT).show();
                     updateChapterButtons();
+                    loadChapterTitles();
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to switch language", e);
@@ -185,6 +188,45 @@ public class ChapterActivity extends AppCompatActivity {
         unlockIfPrevDone.accept(btnChapter5, 4);
     }
 
+    private void loadChapterTitles() {
+        firestore.collection("ChapterContent")
+                .document(selectedLanguage)
+                .collection("Chapters")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<DocumentSnapshot> docs = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        Long lessonNum = doc.getLong("lessonNumber");
+                        if (lessonNum != null && lessonNum == 1) {
+                            docs.add(doc);
+                        }
+                    }
+                    Collections.sort(docs, (d1, d2) -> {
+                        Long chapNum1 = d1.getLong("chapterNumber");
+                        Long chapNum2 = d2.getLong("chapterNumber");
+                        return Long.compare(chapNum1 != null ? chapNum1 : 0, chapNum2 != null ? chapNum2 : 0);
+                    });
+
+                    List<String> chapterTitles = new ArrayList<>();
+                    for (DocumentSnapshot doc : docs) {
+                        String title = doc.getString("chapterTitle");
+                        if (title != null) {
+                            chapterTitles.add(title);
+                        }
+                    }
+
+                    if (chapterTitles.size() > 0) btnChapter1.setText(chapterTitles.get(0));
+                    if (chapterTitles.size() > 1) btnChapter2.setText(chapterTitles.get(1));
+                    if (chapterTitles.size() > 2) btnChapter3.setText(chapterTitles.get(2));
+                    if (chapterTitles.size() > 3) btnChapter4.setText(chapterTitles.get(3));
+                    if (chapterTitles.size() > 4) btnChapter5.setText(chapterTitles.get(4));
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to load chapter titles", e);
+                    Toast.makeText(this, "Error loading chapter titles.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
     private void startChapter(int num) {
         if (num == 1) {
             launchLessonActivity(1);
@@ -213,11 +255,29 @@ public class ChapterActivity extends AppCompatActivity {
     }
 
     private void launchLessonActivity(int chap) {
-        Intent i = new Intent(this, com.example.cognibyte.ChapterPage.LessonActivity.class);
-        i.putExtra("chapterNumber", chap);
-        i.putExtra("language", selectedLanguage);
-        i.putExtra("skillLevel", skillLevel);
-        startActivity(i);
+        firestore.collection("ChapterContent")
+                .document(selectedLanguage)
+                .collection("Chapters")
+                .whereEqualTo("chapterNumber", chap)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        String chapterTitle = queryDocumentSnapshots.getDocuments().get(0).getString("chapterTitle");
+                        Intent i = new Intent(this, com.example.cognibyte.ChapterPage.LessonActivity.class);
+                        i.putExtra("chapterNumber", chap);
+                        i.putExtra("chapterTitle", chapterTitle);
+                        i.putExtra("language", selectedLanguage);
+                        i.putExtra("skillLevel", skillLevel);
+                        startActivity(i);
+                    } else {
+                        Toast.makeText(this, "Chapter not found.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to fetch chapter title", e);
+                    Toast.makeText(this, "Error loading chapter.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void navigateTo(Class<?> cls) {

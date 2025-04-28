@@ -1,21 +1,24 @@
 package com.example.cognibyte.HomePage.Stats;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import com.example.cognibyte.HomePage.HomeActivity;
 import com.example.cognibyte.R;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,27 +32,23 @@ public class StatsActivity extends AppCompatActivity {
     private static final String TAG = "StatsActivity";
 
     private BarChart barChartLessons;
-    private EditText etLevel, etLanguage;
+    private EditText etLevel;
+    private Spinner spinnerLanguageStats;
     private ImageView btnBack;
     private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
     private String selectedLanguage;
+    private List<String> userLanguages = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
 
-        selectedLanguage = getIntent().getStringExtra("selectedLanguage");
-
         barChartLessons = findViewById(R.id.bar_chart_lessons);
         etLevel = findViewById(R.id.et_level);
-        etLanguage = findViewById(R.id.et_language);
+        spinnerLanguageStats = findViewById(R.id.spinnerLanguageStats);
         btnBack = findViewById(R.id.btn_back);
-
-        if (selectedLanguage != null && !selectedLanguage.isEmpty()) {
-            etLanguage.setText(selectedLanguage);
-        }
 
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -58,21 +57,14 @@ public class StatsActivity extends AppCompatActivity {
         barChartLessons.setBackgroundColor(Color.WHITE);
         barChartLessons.getDescription().setEnabled(false);
 
-        loadUserData();
-        loadLessonProgressData();
-
-        btnBack.setOnClickListener(v -> {
-            startActivity(new Intent(StatsActivity.this, HomeActivity.class));
-            finish();
-        });
+        setupLanguageSpinner();
+        btnBack.setOnClickListener(v -> finish());
     }
 
-    private void loadUserData() {
+    private void setupLanguageSpinner() {
         if (mAuth.getCurrentUser() == null) {
-            etLevel.setText("Not logged in");
-            if (etLanguage.getText().toString().isEmpty()) {
-                etLanguage.setText("Unknown");
-            }
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
@@ -80,65 +72,138 @@ public class StatsActivity extends AppCompatActivity {
         firestore.collection("Languages")
                 .document(uid)
                 .get()
-                .addOnSuccessListener((DocumentSnapshot doc) -> {
+                .addOnSuccessListener(doc -> {
+                    Object langsObj = doc.get("languages");
+                    if (langsObj instanceof List<?>) {
+                        userLanguages.clear();
+                        for (Object o : (List<?>) langsObj) {
+                            if (o instanceof String) {
+                                userLanguages.add((String) o);
+                            }
+                        }
+                    }
+
+                    if (userLanguages.isEmpty()) {
+                        Toast.makeText(this, "No languages found.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userLanguages);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinnerLanguageStats.setAdapter(adapter);
+
+                    String storedLang = doc.getString("language");
+                    if (storedLang != null && userLanguages.contains(storedLang)) {
+                        selectedLanguage = storedLang;
+                    } else {
+                        selectedLanguage = userLanguages.get(0);
+                    }
+
+                    spinnerLanguageStats.setSelection(userLanguages.indexOf(selectedLanguage));
+                    spinnerLanguageStats.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {}
+
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            selectedLanguage = userLanguages.get(position);
+                            loadLessonProgressData();
+                            loadUserData();
+                        }
+                    });
+
+                    loadLessonProgressData();
+                    loadUserData();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed loading languages", e);
+                    Toast.makeText(this, "Error loading languages.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void loadUserData() {
+        if (mAuth.getCurrentUser() == null) {
+            etLevel.setText("Not logged in");
+            return;
+        }
+
+        String uid = mAuth.getCurrentUser().getUid();
+        firestore.collection("Languages")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(doc -> {
                     String skill = doc.getString("skillLevel");
                     etLevel.setText(skill != null ? skill : "Unknown");
-
-                    if (etLanguage.getText().toString().isEmpty()) {
-                        String lang = doc.getString("language");
-                        etLanguage.setText(lang != null ? lang : "Unknown");
-                    }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed loading user data", e);
                     etLevel.setText("Error");
-                    if (etLanguage.getText().toString().isEmpty()) {
-                        etLanguage.setText("Error");
-                    }
                 });
     }
 
     private void loadLessonProgressData() {
-        if (mAuth.getCurrentUser() == null) {
-            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
+        if (mAuth.getCurrentUser() == null || selectedLanguage == null) {
+            Toast.makeText(this, "Cannot load data. Missing user or language.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         String uid = mAuth.getCurrentUser().getUid();
         firestore.collection("UserProgress")
                 .document(uid)
+                .collection("Languages")
+                .document(selectedLanguage)
                 .collection("Chapters")
                 .get()
                 .addOnSuccessListener(qs -> {
                     Map<Integer, Integer> counts = new HashMap<>();
+                    for (int i = 1; i <= 5; i++) {
+                        counts.put(i, 0);
+                    }
+
                     for (DocumentSnapshot d : qs.getDocuments()) {
                         Boolean done = d.getBoolean("progress");
                         Long cnum = d.getLong("chapterNumber");
-                        if (Boolean.TRUE.equals(done) && cnum != null) {
+                        Long lessonNum = d.getLong("lessonNumber");
+                        if (Boolean.TRUE.equals(done) && cnum != null && lessonNum != null) {
                             int chap = cnum.intValue();
                             counts.put(chap, counts.getOrDefault(chap, 0) + 1);
                         }
                     }
 
                     List<BarEntry> entries = new ArrayList<>();
-                    for (Map.Entry<Integer, Integer> e : counts.entrySet()) {
-                        entries.add(new BarEntry(e.getKey(), e.getValue()));
+                    for (int i = 1; i <= 5; i++) {
+                        entries.add(new BarEntry(i, counts.getOrDefault(i, 0)));
                     }
+
                     entries.sort(Comparator.comparing(BarEntry::getX));
 
                     if (!entries.isEmpty()) {
                         BarDataSet set = new BarDataSet(entries, "Lessons Completed");
                         set.setColor(ContextCompat.getColor(this, R.color.primary_blue));
                         BarData data = new BarData(set);
-                        data.setBarWidth(0.9f);
+                        data.setBarWidth(0.7f);
 
                         barChartLessons.setData(data);
                         barChartLessons.setFitBars(true);
 
-                        XAxis x = barChartLessons.getXAxis();
-                        x.setPosition(XAxis.XAxisPosition.BOTTOM);
-                        x.setGranularity(1f);
-                        x.setLabelCount(entries.size(), true);
+                        barChartLessons.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                        barChartLessons.getXAxis().setGranularity(1f);
+                        barChartLessons.getAxisLeft().setDrawGridLines(false);
+                        barChartLessons.getAxisRight().setEnabled(false);
+                        barChartLessons.getDescription().setEnabled(false);
+
+                        String[] chapterLabels = new String[]{"", "Chapter 1", "Chapter 2", "Chapter 3", "Chapter 4", "Chapter 5"};
+
+                        barChartLessons.getXAxis().setValueFormatter(new ValueFormatter() {
+                            @Override
+                            public String getFormattedValue(float value) {
+                                if (value >= 1 && value <= 5) {
+                                    return chapterLabels[(int) value];
+                                } else {
+                                    return "";
+                                }
+                            }
+                        });
 
                         barChartLessons.invalidate();
                     } else {

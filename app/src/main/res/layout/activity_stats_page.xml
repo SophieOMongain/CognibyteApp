@@ -170,10 +170,10 @@
             android:layout_marginEnd="40dp"/>
 
         <ImageView
-            android:id="@+id/btnStats"
+            android:id="@+id/btnChapter"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/stats"
+            android:src="@drawable/lesson"
             android:layout_marginEnd="40dp"/>
 
         <ImageView
