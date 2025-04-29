@@ -30,8 +30,8 @@
 
     <LinearLayout
         android:id="@+id/middleCard"
-        android:layout_width="365dp"
-        android:layout_height="253dp"
+        android:layout_width="356dp"
+        android:layout_height="287dp"
         android:layout_marginTop="50dp"
         android:background="@drawable/rounded_card"
         android:gravity="center"
@@ -70,10 +70,10 @@
 
     <Button
         android:id="@+id/btnLogout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="363dp"
+        android:layout_height="77dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="216dp"
+        android:layout_marginTop="200dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/rounded_button_dark"
         android:text="RETURN TO LOGIN"

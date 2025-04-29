@@ -184,6 +184,11 @@
         <activity
             android:name=".HomePage.ManageLanguageActivity"
             android:exported="true" />
+
+        <!-- View courses  Page -->
+        <activity
+            android:name=".HomePage.ViewCoursesActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

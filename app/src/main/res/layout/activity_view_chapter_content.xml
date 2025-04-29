@@ -11,12 +11,14 @@
 
     <LinearLayout
         android:id="@+id/header"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/secondary_blue"
         android:orientation="horizontal"
         android:padding="16dp"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <ImageView
             android:id="@+id/btnBack"
@@ -27,121 +29,141 @@
 
         <TextView
             android:id="@+id/tvHeaderTitle"
-            android:layout_width="299dp"
-            android:layout_height="51dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="center"
             android:text="View Content"
             android:textColor="@color/primary_blue"
             android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:visibility="invisible"/>
     </LinearLayout>
 
-    <Spinner
-        android:id="@+id/spinnerLanguage"
+    <ScrollView
+        android:id="@+id/scrollContent"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/text_grey"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/layoutEditSave"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <Spinner
-        android:id="@+id/spinnerChapter"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/text_grey"
-        android:prompt="@string/select_chapter"
-        app:layout_constraintTop_toBottomOf="@id/spinnerLanguage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <Spinner
-        android:id="@+id/spinnerLesson"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/text_grey"
-        android:prompt="@string/select_lesson"
-        app:layout_constraintTop_toBottomOf="@id/spinnerChapter"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_card"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <Button
-        android:id="@+id/btnSelect"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/primary_blue"
-        android:text="Select"
-        android:textColor="@color/secondary_blue"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/spinnerLesson"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+                <Spinner
+                    android:id="@+id/spinnerLanguage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/text_grey"
+                    android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/LastEdited"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/text_grey"
-        android:enabled="false"
-        android:hint=" Last Edited"
-        android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/btnSelect"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+                <Spinner
+                    android:id="@+id/spinnerChapter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/text_grey"
+                    android:layout_marginBottom="16dp" />
 
-    <TextView
-        android:id="@+id/tvLessonContentTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:text="Lesson Content"
-        android:textColor="@color/primary_blue"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/LastEdited"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+                <Spinner
+                    android:id="@+id/spinnerLesson"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/text_grey"
+                    android:layout_marginBottom="16dp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvLessonContent"
-        android:layout_width="0dp"
-        android:layout_height="130dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/text_grey"
-        app:layout_constraintTop_toBottomOf="@id/tvLessonContentTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+                <Button
+                    android:id="@+id/btnSelect"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Select"
+                    android:backgroundTint="@color/primary_blue"
+                    android:textColor="@color/secondary_blue"
+                    android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tvLessonRecapTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Lesson Recap"
-        android:textColor="@color/primary_blue"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/rvLessonContent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+                <EditText
+                    android:id="@+id/LastEdited"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/text_grey"
+                    android:hint="Last Edited"
+                    android:inputType="text"
+                    android:enabled="false"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvLessonRecap"
-        android:layout_width="0dp"
-        android:layout_height="172dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/text_grey"
-        app:layout_constraintTop_toBottomOf="@id/tvLessonRecapTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_card"
+                android:layout_marginTop="16dp"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvLessonContentTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lesson Content"
+                    android:textColor="@color/primary_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingBottom="8dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvLessonContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="130dp"
+                    android:background="@color/text_grey"
+                    android:layout_marginBottom="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_card"
+                android:layout_marginTop="16dp"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvLessonRecapTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lesson Recap"
+                    android:textColor="@color/primary_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingBottom="8dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvLessonRecap"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="172dp"
+                    android:background="@color/text_grey"
+                    android:layout_marginBottom="8dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/layoutEditSave"
@@ -149,6 +171,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
+        android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">

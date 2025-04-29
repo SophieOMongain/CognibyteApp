@@ -52,9 +52,9 @@ public class SettingsActivity extends AppCompatActivity {
             finish();
         });
 
-        btnViewCourses.setOnClickListener(v ->
-                Toast.makeText(this, "View Courses clicked!", Toast.LENGTH_SHORT).show()
-        );
+        btnViewCourses.setOnClickListener(v -> {
+            startActivity(new Intent(SettingsActivity.this, ViewCoursesActivity.class));
+        });
 
         btnSignOut.setOnClickListener(v -> {
             mAuth.signOut();
