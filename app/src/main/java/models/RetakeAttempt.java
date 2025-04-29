@@ -7,22 +7,33 @@ public class RetakeAttempt implements Serializable {
     private int score;
     private int totalQuestions;
     private String timeTaken;
+    private long timeMillis;
     private String date;
     private String language;
     private String chapter;
     private String lesson;
+    private String userId;
 
     public RetakeAttempt() {
     }
 
-    public RetakeAttempt(int score, int totalQuestions, String timeTaken, String date, String language, String chapter, String lesson) {
+    public RetakeAttempt(int score, int totalQuestions, String timeTaken, long timeMillis, String date, String language, String chapter, String lesson) {
         this.score = score;
         this.totalQuestions = totalQuestions;
         this.timeTaken = timeTaken;
+        this.timeMillis = timeMillis;
         this.date = date;
         this.language = language;
         this.chapter = chapter;
         this.lesson = lesson;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public int getScore() {
@@ -47,6 +58,14 @@ public class RetakeAttempt implements Serializable {
 
     public void setTimeTaken(String timeTaken) {
         this.timeTaken = timeTaken;
+    }
+
+    public long getTimeMillis() {
+        return timeMillis;
+    }
+
+    public void setTimeMillis(long timeMillis) {
+        this.timeMillis = timeMillis;
     }
 
     public String getDate() {
