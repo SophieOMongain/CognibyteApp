@@ -186,6 +186,8 @@ public class FullQuizRetakeActivity extends AppCompatActivity {
                 selectedLesson
         );
 
+        attempt.setUserId(userId);
+
         final String[] finalFeedback = {""};
 
         CollectionReference attemptsRef = firestore.collection("UserFullQuizPractice")
