@@ -5,7 +5,7 @@
     android:id="@+id/layout_generate_chapters"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/text_grey">
+    android:background="@color/background_light_blue">
 
     <LinearLayout
         android:id="@+id/header"
@@ -138,13 +138,14 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/primary_blue"
+        android:background="@drawable/rounded_button_dark"
         android:text="Generate Content"
-        android:textColor="@color/secondary_blue"
+        android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/btnViewContent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 
     <Button
         android:id="@+id/btnViewContent"
@@ -152,13 +153,14 @@
         android:layout_height="wrap_content"
         android:text="View Content"
         android:textStyle="bold"
-        android:backgroundTint="@color/secondary_blue"
-        android:textColor="@color/primary_blue"
+        android:background="@drawable/rounded_button_dark"
+        android:textColor="@color/white"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

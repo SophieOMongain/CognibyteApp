@@ -22,7 +22,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private static final String TAG = "QuizActivity";
     private ProgressBar progressBar;
-    private TextView tvQuestion, tvCorrectAnswer, tvExplanation, tvWrongQuestions;
+    private TextView tvQuestion, tvCorrectAnswer, tvExplanation, tvWrongQuestions, tvRecommendation;
     private RadioGroup rgOptions;
     private Button btnSubmit, btnNext, btnBack, btnReturnToLessons, btnCompleteLesson, btnRetryQuiz;
     private List<Question> quizQuestions = new ArrayList<>();
@@ -44,6 +44,7 @@ public class QuizActivity extends AppCompatActivity {
         tvCorrectAnswer = findViewById(R.id.tvCorrectAnswer);
         tvExplanation = findViewById(R.id.tvExplanation);
         tvWrongQuestions = findViewById(R.id.tvWrongQuestions);
+        tvRecommendation = findViewById(R.id.tvRecommendation);
         rgOptions = findViewById(R.id.rgOptions);
         btnSubmit = findViewById(R.id.btnSubmit);
         btnNext = findViewById(R.id.btnNext);
@@ -51,6 +52,7 @@ public class QuizActivity extends AppCompatActivity {
         btnReturnToLessons = findViewById(R.id.btnReturnToLessons);
         btnCompleteLesson = findViewById(R.id.btnCompleteLesson);
         btnRetryQuiz = findViewById(R.id.btnRetryQuiz);
+
         firestore = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -211,6 +213,17 @@ public class QuizActivity extends AppCompatActivity {
             tvWrongQuestions.setVisibility(View.VISIBLE);
         }
 
+        if (score <= 2) {
+            tvRecommendation.setText("Good effort! To improve your score, review the lesson recap and try again. You're getting closer every time!");
+        } else if (score == 3 || score == 4) {
+            tvRecommendation.setText("Amazing work! You're definitely ready to move forward — keep up the momentum!");
+        } else if (score == 5) {
+            tvRecommendation.setText("You are unstoppable! You're on your way to becoming a coding master!");
+        }
+
+        findViewById(R.id.cardRecommendation).setVisibility(View.VISIBLE);
+        tvRecommendation.setVisibility(View.VISIBLE);
+        findViewById(R.id.bottomButtonGroup).setVisibility(View.VISIBLE);
         btnNext.setVisibility(View.GONE);
         btnRetryQuiz.setVisibility(View.VISIBLE);
         btnCompleteLesson.setVisibility(View.VISIBLE);
@@ -229,6 +242,7 @@ public class QuizActivity extends AppCompatActivity {
                     public void onSuccess() {
                         Log.d(TAG, "Saved quiz attempt");
                     }
+
                     @Override
                     public void onFailure(String err) {
                         Log.e(TAG, "Save failed: " + err);
@@ -246,6 +260,7 @@ public class QuizActivity extends AppCompatActivity {
         btnRetryQuiz.setVisibility(View.GONE);
         btnCompleteLesson.setVisibility(View.GONE);
         btnReturnToLessons.setVisibility(View.GONE);
+        if (tvRecommendation != null) tvRecommendation.setVisibility(View.GONE);
         showNextQuestion();
     }
 

@@ -27,6 +27,8 @@ public class UserQuizDatabaseHelper {
         CollectionReference attemptsRef = db
                 .collection("UserQuiz")
                 .document(userId)
+                .collection(language)
+                .document("Chapter" + chapterNumber + "_Lesson" + lessonNumber)
                 .collection("Attempts");
 
         attemptsRef.get()

@@ -6,7 +6,7 @@
     android:id="@+id/layout_view_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/text_grey"
+    android:background="@color/background_light_blue"
     tools:context=".Admin.ViewChapterContentActivity">
 
     <LinearLayout
@@ -93,9 +93,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Select"
-                    android:backgroundTint="@color/primary_blue"
-                    android:textColor="@color/secondary_blue"
+                    android:background="@drawable/rounded_button_dark"
+                    android:textColor="@color/white"
                     android:textStyle="bold" />
+
 
                 <EditText
                     android:id="@+id/LastEdited"
@@ -182,8 +183,9 @@
             android:layout_height="wrap_content"
             android:text="Edit"
             android:textStyle="bold"
-            android:backgroundTint="@color/primary_blue"
-            android:textColor="@color/secondary_blue" />
+            android:background="@drawable/rounded_button_dark"
+            android:textColor="@color/white" />
+
 
         <Button
             android:id="@+id/btnSave"
@@ -191,9 +193,9 @@
             android:layout_height="wrap_content"
             android:text="Save"
             android:textStyle="bold"
-            android:backgroundTint="@color/primary_blue"
-            android:textColor="@color/secondary_blue"
-            android:layout_marginStart="16dp"/>
+            android:background="@drawable/rounded_button_dark"
+            android:textColor="@color/white"
+            android:layout_marginStart="16dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

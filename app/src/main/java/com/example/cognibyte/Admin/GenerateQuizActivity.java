@@ -39,7 +39,7 @@ public class GenerateQuizActivity extends AppCompatActivity {
         spinnerSkillLevel = findViewById(R.id.spinnerSkillLevel);
         spinnerChapter = findViewById(R.id.spinnerChapter);
         spinnerLesson = findViewById(R.id.spinnerLesson);
-        btnGenerateContent = findViewById(R.id.btnGenerateContent);
+        btnGenerateContent = findViewById(R.id.btnGenerateQuiz);
         btnViewContent = findViewById(R.id.btnViewContent);
         firestore = FirebaseFirestore.getInstance();
 

@@ -75,7 +75,6 @@ public class QuizStatsActivity extends AppCompatActivity {
 
                     spinnerLanguage.setAdapter(langAdapter);
                     spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
                         @Override public void onNothingSelected(AdapterView<?> p) {}
                         @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
                             loadChapters(userLanguages.get(pos));
@@ -87,29 +86,30 @@ public class QuizStatsActivity extends AppCompatActivity {
 
     private void loadChapters(String language) {
         chapters.clear();
-        db.collection("UserQuiz").document(userId).collection("Attempts")
-                .whereEqualTo("language", language)
+        db.collection("UserProgress").document(userId)
+                .collection("Languages").document(language)
+                .collection("Chapters")
+                .whereEqualTo("progress", true)
                 .get()
                 .addOnSuccessListener(qs -> {
-                    Set<Integer> chapterNumbers = new TreeSet<>();
+                    Set<Integer> chapterNums = new TreeSet<>();
                     for (DocumentSnapshot doc : qs) {
-                        Number num = doc.getLong("chapterNumber");
-                        if (num != null) chapterNumbers.add(num.intValue());
+                        Long chapNum = doc.getLong("chapterNumber");
+                        if (chapNum != null) chapterNums.add(chapNum.intValue());
                     }
-                    for (int num : chapterNumbers) {
+                    for (int num : chapterNums) {
                         chapters.add("Chapter " + num);
                     }
+
                     ArrayAdapter<String> chapAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, chapters);
                     chapAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
                     spinnerChapters.setAdapter(chapAdapter);
-                    spinnerChapters.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
+                    spinnerChapters.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override public void onNothingSelected(AdapterView<?> p) {}
                         @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
                             int chapNum = Integer.parseInt(chapters.get(pos).replace("Chapter ", ""));
                             loadLessons(language, chapNum);
-                            loadBarChart(language, chapNum);
                         }
                     });
                 });
@@ -117,52 +117,60 @@ public class QuizStatsActivity extends AppCompatActivity {
 
     private void loadLessons(String language, int chapNum) {
         lessons.clear();
-        db.collection("UserQuiz").document(userId).collection("Attempts")
-                .whereEqualTo("language", language)
+        db.collection("UserProgress").document(userId)
+                .collection("Languages").document(language)
+                .collection("Chapters")
+                .whereEqualTo("progress", true)
                 .whereEqualTo("chapterNumber", chapNum)
                 .get()
                 .addOnSuccessListener(qs -> {
-                    Set<String> lessonTitles = new TreeSet<>();
+                    Set<Integer> lessonNums = new TreeSet<>();
                     for (DocumentSnapshot doc : qs) {
-                        String title = doc.getString("lessonTitle");
-                        if (title != null) lessonTitles.add(title);
+                        Long lesson = doc.getLong("lessonNumber");
+                        if (lesson != null) lessonNums.add(lesson.intValue());
                     }
-                    lessons.addAll(lessonTitles);
+
+                    for (int num : lessonNums) {
+                        lessons.add("Lesson " + num);
+                    }
 
                     ArrayAdapter<String> lessonAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, lessons);
                     lessonAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
                     spinnerLesson.setAdapter(lessonAdapter);
-                    spinnerLesson.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
+                    spinnerLesson.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override public void onNothingSelected(AdapterView<?> p) {}
                         @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                            String lesson = lessons.get(pos);
-                            loadAttempts(language, chapNum, lesson);
+                            int lessonNum = Integer.parseInt(lessons.get(pos).replace("Lesson ", ""));
+                            loadAttempts(language, chapNum, lessonNum);
+                            loadBarChart(language, chapNum);
                         }
                     });
                 });
     }
 
-    private void loadAttempts(String language, int chapNum, String lesson) {
+    private void loadAttempts(String language, int chapNum, int lessonNum) {
         attempts.clear();
         attemptDocs.clear();
-        db.collection("UserQuiz").document(userId).collection("Attempts")
-                .whereEqualTo("language", language)
-                .whereEqualTo("chapterNumber", chapNum)
-                .whereEqualTo("lessonTitle", lesson)
+
+        String docId = "Chapter" + chapNum + "_Lesson" + lessonNum;
+        db.collection("UserQuiz").document(userId)
+                .collection(language)
+                .document(docId)
+                .collection("Attempts")
                 .get()
                 .addOnSuccessListener(qs -> {
                     for (DocumentSnapshot doc : qs) {
                         attemptDocs.add(doc);
-                        attempts.add("Attempt " + doc.getLong("attemptNumber"));
+                        Long attemptNum = doc.getLong("attemptNumber");
+                        if (attemptNum != null) attempts.add("Attempt " + attemptNum);
                     }
+
                     ArrayAdapter<String> attAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, attempts);
                     attAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
                     spinnerAttempt.setAdapter(attAdapter);
-                    spinnerAttempt.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
+                    spinnerAttempt.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override public void onNothingSelected(AdapterView<?> p) {}
                         @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
                             QuizAttempt at = attemptDocs.get(pos).toObject(QuizAttempt.class);
@@ -173,34 +181,46 @@ public class QuizStatsActivity extends AppCompatActivity {
     }
 
     private void loadBarChart(String language, int chapNum) {
-        db.collection("UserQuiz").document(userId).collection("Attempts")
+        db.collectionGroup("Attempts")
+                .whereEqualTo("userId", userId)
                 .whereEqualTo("language", language)
                 .whereEqualTo("chapterNumber", chapNum)
                 .get()
                 .addOnSuccessListener(qs -> {
-                    Map<String, Integer> counts = new HashMap<>();
+                    Map<String, Integer> lessonCountMap = new HashMap<>();
                     for (DocumentSnapshot doc : qs) {
                         String lesson = doc.getString("lessonTitle");
-                        counts.put(lesson, counts.getOrDefault(lesson, 0) + 1);
+                        if (lesson != null) {
+                            lessonCountMap.put(lesson, lessonCountMap.getOrDefault(lesson, 0) + 1);
+                        }
                     }
+
                     List<BarEntry> entries = new ArrayList<>();
-                    List<String> labels = new ArrayList<>(counts.keySet());
+                    List<String> labels = new ArrayList<>(lessonCountMap.keySet());
                     Collections.sort(labels);
+
                     for (int i = 0; i < labels.size(); i++) {
-                        entries.add(new BarEntry(i, counts.get(labels.get(i))));
+                        entries.add(new BarEntry(i, lessonCountMap.get(labels.get(i))));
                     }
-                    BarDataSet set = new BarDataSet(entries, "Attempts");
-                    set.setColor(ContextCompat.getColor(this, R.color.primary_blue));
-                    BarData data = new BarData(set);
-                    data.setBarWidth(0.9f);
-                    barChartQuiz.setData(data);
-                    barChartQuiz.getDescription().setEnabled(false);
+
+                    BarDataSet dataSet = new BarDataSet(entries, "Attempts per Lesson");
+                    dataSet.setColor(ContextCompat.getColor(this, R.color.primary_blue));
+
+                    BarData barData = new BarData(dataSet);
+                    barData.setBarWidth(0.9f);
+                    barChartQuiz.setData(barData);
                     barChartQuiz.setFitBars(true);
-                    XAxis x = barChartQuiz.getXAxis();
-                    x.setGranularity(1f);
-                    x.setPosition(XAxis.XAxisPosition.BOTTOM);
-                    x.setValueFormatter(new IndexAxisValueFormatter(labels));
+                    barChartQuiz.getDescription().setEnabled(false);
+
+                    XAxis xAxis = barChartQuiz.getXAxis();
+                    xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                    xAxis.setGranularity(1f);
+                    xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+
                     barChartQuiz.invalidate();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to load bar chart: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -209,6 +229,7 @@ public class QuizStatsActivity extends AppCompatActivity {
             pieChartAnswers.clear();
             return;
         }
+
         int totalQ = at.getQuestionsAsked().size();
         int wrong = at.getWrongQuestions() == null ? 0 : at.getWrongQuestions().size();
         int correct = totalQ - wrong;
@@ -233,9 +254,10 @@ public class QuizStatsActivity extends AppCompatActivity {
         pieChartAnswers.setCenterText("Details");
         pieChartAnswers.setCenterTextSize(16f);
         pieChartAnswers.invalidate();
-        pieChartAnswers.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
 
+        pieChartAnswers.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override public void onNothingSelected() {}
+
             @Override public void onValueSelected(Entry e, Highlight h) {
                 boolean tappedWrong = ((PieEntry) e).getLabel().equals("Wrong");
                 List<String> list = new ArrayList<>();
@@ -247,23 +269,19 @@ public class QuizStatsActivity extends AppCompatActivity {
                             list.add(q.getQuestion());
                     }
                 }
+
                 if (list.isEmpty()) {
                     Toast.makeText(QuizStatsActivity.this,
                             tappedWrong ? "No wrong questions" : "No correct questions",
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
+
                 new AlertDialog.Builder(QuizStatsActivity.this)
                         .setTitle(tappedWrong ? "Wrong" : "Correct")
                         .setItems(list.toArray(new String[0]), null)
                         .show();
             }
         });
-    }
-
-    private void clearCharts() {
-        barChartQuiz.clear();
-        pieChartAnswers.clear();
-        tvOverallAccuracy.setText("—%");
     }
 }

@@ -18,8 +18,10 @@ import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ViewQuizContentActivity extends AppCompatActivity {
 
@@ -232,12 +234,13 @@ public class ViewQuizContentActivity extends AppCompatActivity {
                 .collection("Chapters")
                 .get()
                 .addOnSuccessListener(chapters -> {
-                    List<String> titles = new ArrayList<>();
+                    Set<String> titlesSet = new LinkedHashSet<>();
                     for (DocumentSnapshot doc : chapters.getDocuments()) {
                         String t = doc.getString("chapterTitle");
-                        if (t != null) titles.add(t);
+                        if (t != null) titlesSet.add(t);
                     }
-                    spinnerChapter.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, titles));
+                    List<String> uniqueTitles = new ArrayList<>(titlesSet);
+                    spinnerChapter.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, uniqueTitles));
                 });
     }
 
