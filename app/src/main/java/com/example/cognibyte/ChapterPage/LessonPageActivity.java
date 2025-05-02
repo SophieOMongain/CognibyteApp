@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.cognibyte.Account.LoginActivity;
 import com.example.cognibyte.ChapterPage.Quiz.QuizActivity;
+import com.example.cognibyte.HomePage.HomeActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -75,7 +76,7 @@ public class LessonPageActivity extends AppCompatActivity {
         tvLessonContent.setMovementMethod(new android.text.method.ScrollingMovementMethod());
 
         btnRetry.setOnClickListener(v -> fetchLesson());
-        btnHome .setOnClickListener(v -> finish());
+        btnHome.setOnClickListener(v -> startActivity(new Intent(this, HomeActivity.class)));
         btnReturnToLessons.setOnClickListener(v -> finish());
         btnStartQuiz.setOnClickListener(v -> {
             if (lessonContent == null || lessonContent.isEmpty()) {
