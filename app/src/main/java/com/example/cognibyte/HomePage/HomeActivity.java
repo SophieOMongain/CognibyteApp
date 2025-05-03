@@ -42,9 +42,9 @@ public class HomeActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null) {
                             DocumentSnapshot document = task.getResult();
-                            String name = document.getString("name");
-                            if (name != null) {
-                                tvWelcome.setText("Welcome, " + name + "!");
+                            String username = document.getString("username");
+                            if (username != null) {
+                                tvWelcome.setText("Welcome, " + username + "!");
                             } else {
                                 tvWelcome.setText("Welcome!");
                             }
