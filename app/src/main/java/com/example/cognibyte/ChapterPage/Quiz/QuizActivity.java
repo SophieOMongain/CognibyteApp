@@ -260,9 +260,12 @@ public class QuizActivity extends AppCompatActivity {
         btnRetryQuiz.setVisibility(View.GONE);
         btnCompleteLesson.setVisibility(View.GONE);
         btnReturnToLessons.setVisibility(View.GONE);
-        if (tvRecommendation != null) tvRecommendation.setVisibility(View.GONE);
+        tvRecommendation.setVisibility(View.GONE);
+        findViewById(R.id.cardRecommendation).setVisibility(View.GONE);
+        findViewById(R.id.bottomButtonGroup).setVisibility(View.GONE);
         showNextQuestion();
     }
+
 
     private void completeLesson() {
         Map<String, Object> data = new HashMap<>();
