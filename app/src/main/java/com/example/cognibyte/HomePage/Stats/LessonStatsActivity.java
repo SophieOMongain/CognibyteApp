@@ -23,7 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StatsPageActivity extends AppCompatActivity {
+public class LessonStatsActivity extends AppCompatActivity {
 
     private Spinner spinnerLanguage;
     private ProgressBar progressOverall;

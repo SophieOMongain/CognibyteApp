@@ -6,7 +6,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.cognibyte.HomePage.Recap.RecapActivity;
-import com.example.cognibyte.HomePage.Stats.StatsPageActivity;
+import com.example.cognibyte.HomePage.Stats.LessonStatsActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -72,7 +72,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.stats_section).setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, StatsPageActivity.class);
+            Intent intent = new Intent(HomeActivity.this, LessonStatsActivity.class);
             startActivity(intent);
         });
 

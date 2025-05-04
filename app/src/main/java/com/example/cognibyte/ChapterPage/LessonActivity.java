@@ -15,7 +15,7 @@ import com.example.cognibyte.HomePage.ChapterActivity;
 import com.example.cognibyte.HomePage.HomeActivity;
 import com.example.cognibyte.HomePage.ProfileActivity;
 import com.example.cognibyte.HomePage.Recap.RecapActivity;
-import com.example.cognibyte.HomePage.Stats.StatsPageActivity;
+import com.example.cognibyte.HomePage.Stats.LessonStatsActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -72,7 +72,7 @@ public class LessonActivity extends AppCompatActivity {
         });
         btnHome.setOnClickListener(v -> startActivity(new Intent(this, HomeActivity.class)));
         btnProfile.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
-        btnStats.setOnClickListener(v -> startActivity(new Intent(this, StatsPageActivity.class)));
+        btnStats.setOnClickListener(v -> startActivity(new Intent(this, LessonStatsActivity.class)));
         btnCodeQuiz.setOnClickListener(v -> startActivity(new Intent(this, RecapActivity.class)));
 
         chapterNumber = getIntent().getIntExtra("chapterNumber", 1);

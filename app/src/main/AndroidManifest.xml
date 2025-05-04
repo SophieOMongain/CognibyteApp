@@ -11,9 +11,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_robot"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher_robot"
         android:supportsRtl="true"
         android:theme="@style/Theme.Cognibyte"
         tools:targetApi="31">
@@ -77,20 +77,6 @@
             android:name=".ChapterPage.Quiz.QuizActivity"
             android:exported="true" />
 
-        <!-- Code Quiz Page Activity -->
-        <activity
-            android:name=".ChapterPage.CodeQuiz.CodeQuizActivity"
-            android:exported="true" />
-
-        <!-- Code Quiz Page Activity -->
-        <activity
-            android:name=".ChapterPage.CodeQuiz.SelectCodeQuizActivity"
-            android:exported="true" />
-
-        <!-- Code Quiz homepage Page Activity -->
-        <activity
-            android:name=".ChapterPage.CodeQuiz.WeeklyQuizActivity"
-            android:exported="true" />
 
         <!-- SkillLevel Activity -->
         <activity
@@ -126,26 +112,6 @@
             android:exported="true" />
 
 
-        <!--  Language Activity -->
-        <activity
-            android:name=".HomePage.Language.LanguageActivity"
-            android:exported="true" />
-
-        <!-- Add Language Activity -->
-        <activity
-            android:name=".HomePage.Language.AddLanguageActivity"
-            android:exported="true" />
-
-        <!-- Change Language Activity -->
-        <activity
-            android:name=".HomePage.Language.ChangeLanguageActivity"
-            android:exported="true" />
-
-        <!-- Weekly Recap Activity -->
-        <activity
-            android:name=".ChapterPage.CodeQuiz.WeeklyRecapActivity"
-            android:exported="true" />
-
         <activity
             android:name=".ChapterPage.LessonActivity"
             android:exported="true" />
@@ -172,7 +138,7 @@
 
         <!--  stats Page -->
         <activity
-            android:name=".HomePage.Stats.StatsPageActivity"
+            android:name=".HomePage.Stats.LessonStatsActivity"
             android:exported="true" />
 
         <!-- quiz stats Page -->
@@ -192,8 +158,5 @@
     </application>
 
 </manifest>
-
-
-
 
 

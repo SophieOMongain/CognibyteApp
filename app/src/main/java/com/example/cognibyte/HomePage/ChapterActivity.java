@@ -12,7 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.cognibyte.HomePage.Recap.RecapActivity;
-import com.example.cognibyte.HomePage.Stats.StatsPageActivity;
+import com.example.cognibyte.HomePage.Stats.LessonStatsActivity;
 import com.example.cognibyte.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -81,7 +81,7 @@ public class ChapterActivity extends AppCompatActivity {
         btnChapter5.setOnClickListener(v -> startChapter(5));
         btnHome.setOnClickListener(v -> navigateTo(HomeActivity.class));
         btnProfile.setOnClickListener(v -> navigateTo(ProfileActivity.class));
-        btnStats.setOnClickListener(v -> navigateTo(StatsPageActivity.class));
+        btnStats.setOnClickListener(v -> navigateTo(LessonStatsActivity.class));
         btnCodeQuiz.setOnClickListener(v -> navigateTo(RecapActivity.class));
     }
 
