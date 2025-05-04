@@ -86,7 +86,6 @@ public class QuizActivity extends AppCompatActivity {
         });
         btnRetryQuiz.setOnClickListener(v -> resetQuiz());
         btnCompleteLesson.setOnClickListener(v -> completeLesson());
-
         btnNext.setVisibility(View.GONE);
         btnCompleteLesson.setVisibility(View.GONE);
         btnRetryQuiz.setVisibility(View.GONE);
@@ -153,6 +152,7 @@ public class QuizActivity extends AppCompatActivity {
             showFinalScore();
             return;
         }
+
         Question q = quizQuestions.get(currentQuestionIndex);
         tvQuestion.setText(q.getQuestion());
 
@@ -160,7 +160,14 @@ public class QuizActivity extends AppCompatActivity {
         char label = 'A';
         for (String o : q.getOptions()) {
             RadioButton rb = new RadioButton(this);
-            rb.setText(label + ". " + o);
+            String cleaned = o.replaceAll("^[A-D][).]\\s*", "");
+
+            if (cleaned.matches("^[A-D][).]\\s*.*")) {
+                rb.setText(label + ". " + cleaned.replaceAll("^[A-D][).]\\s*", ""));
+            } else {
+                rb.setText(label + ". " + cleaned);
+            }
+
             rgOptions.addView(rb);
             label++;
         }
@@ -177,12 +184,14 @@ public class QuizActivity extends AppCompatActivity {
             Toast.makeText(this, "Please select an answer!", Toast.LENGTH_SHORT).show();
             return;
         }
+
         String chosen = ((RadioButton) findViewById(sel)).getText().toString();
-        if (chosen.contains(". ")) {
-            chosen = chosen.substring(chosen.indexOf(". ") + 2).trim();
-        }
+        chosen = chosen.replaceAll("^[A-D][).]\\s*", "").trim();
+
         Question cur = quizQuestions.get(currentQuestionIndex);
-        if (chosen.equalsIgnoreCase(cur.getAnswer())) {
+        String correctAnswer = cur.getAnswer().replaceAll("^[A-D][).]\\s*", "").trim();
+
+        if (chosen.equalsIgnoreCase(correctAnswer)) {
             score++;
         } else {
             wrongQuestions.add(cur);
@@ -203,10 +212,10 @@ public class QuizActivity extends AppCompatActivity {
         tvExplanation.setVisibility(View.GONE);
 
         if (!wrongQuestions.isEmpty()) {
-            StringBuilder sb = new StringBuilder("You got wrong:\n");
+            StringBuilder sb = new StringBuilder("Questions you got wrong:\n");
             for (Question w : wrongQuestions) {
                 sb.append("- ").append(w.getQuestion())
-                        .append("\n  Ans: ").append(w.getAnswer())
+                        .append("\n  Correct answer: ").append(w.getAnswer())
                         .append("\n\n");
             }
             tvWrongQuestions.setText(sb.toString());
@@ -214,7 +223,7 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         if (score <= 2) {
-            tvRecommendation.setText("Good effort! To improve your score, review the lesson recap and try again. You're getting closer every time!");
+            tvRecommendation.setText("Great effort! To help improve your score, review the lesson recap and try again. You're getting closer every time!");
         } else if (score == 3 || score == 4) {
             tvRecommendation.setText("Amazing work! You're definitely ready to move forward — keep up the momentum!");
         } else if (score == 5) {
@@ -266,7 +275,6 @@ public class QuizActivity extends AppCompatActivity {
         showNextQuestion();
     }
 
-
     private void completeLesson() {
         Map<String, Object> data = new HashMap<>();
         data.put("chapterNumber", chapterNumber);
@@ -287,10 +295,28 @@ public class QuizActivity extends AppCompatActivity {
                     int nextChapter = (lessonNumber == 5)
                             ? chapterNumber + 1
                             : chapterNumber;
-                    Intent intent = new Intent(QuizActivity.this, LessonActivity.class);
-                    intent.putExtra("chapterNumber", nextChapter);
-                    startActivity(intent);
-                    finish();
+                    firestore.collection("ChapterContent")
+                            .document(language)
+                            .collection("Chapters")
+                            .whereEqualTo("chapterNumber", nextChapter)
+                            .limit(1)
+                            .get()
+                            .addOnSuccessListener(snapshot -> {
+                                if (!snapshot.isEmpty()) {
+                                    String chapterTitle = snapshot.getDocuments().get(0).getString("chapterTitle");
+
+                                    Intent intent = new Intent(QuizActivity.this, LessonActivity.class);
+                                    intent.putExtra("chapterNumber", nextChapter);
+                                    intent.putExtra("chapterTitle", chapterTitle);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    Toast.makeText(this, "Next chapter not found.", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Error loading next chapter: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(QuizActivity.this,
