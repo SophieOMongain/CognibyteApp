@@ -26,6 +26,7 @@ public class QuizStatsActivity extends AppCompatActivity {
     private BarChart barChartQuiz;
     private PieChart pieChartAnswers;
     private TextView tvOverallAccuracy;
+    private TextView tvLessonAverage;
 
     private FirebaseFirestore db;
     private String userId;
@@ -49,6 +50,7 @@ public class QuizStatsActivity extends AppCompatActivity {
         barChartQuiz = findViewById(R.id.barChartQuiz);
         pieChartAnswers = findViewById(R.id.pieChartAnswers);
         tvOverallAccuracy = findViewById(R.id.tvOverallAccuracy);
+        tvLessonAverage = findViewById(R.id.tvLessonAverage);
 
         db = FirebaseFirestore.getInstance();
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -160,10 +162,27 @@ public class QuizStatsActivity extends AppCompatActivity {
                 .collection("Attempts")
                 .get()
                 .addOnSuccessListener(qs -> {
+                    int totalScore = 0;
+                    int totalAttempts = 0;
+
                     for (DocumentSnapshot doc : qs) {
                         attemptDocs.add(doc);
                         Long attemptNum = doc.getLong("attemptNumber");
+                        Long score = doc.getLong("score");
                         if (attemptNum != null) attempts.add("Attempt " + attemptNum);
+                        if (score != null) {
+                            totalScore += score;
+                            totalAttempts++;
+                        }
+                    }
+
+                    if (totalAttempts > 0) {
+                        int avgScore = totalScore * 100 / (totalAttempts * 5);
+                        tvLessonAverage.setText("Lesson Average: " + avgScore + "%");
+                        tvLessonAverage.setVisibility(View.VISIBLE);
+                    } else {
+                        tvLessonAverage.setText("Lesson Average: —%");
+                        tvLessonAverage.setVisibility(View.VISIBLE);
                     }
 
                     ArrayAdapter<String> attAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, attempts);
@@ -234,7 +253,7 @@ public class QuizStatsActivity extends AppCompatActivity {
         int wrong = at.getWrongQuestions() == null ? 0 : at.getWrongQuestions().size();
         int correct = totalQ - wrong;
 
-        tvOverallAccuracy.setText(totalQ > 0 ? String.format("%d%%", (correct * 100 / totalQ)) : "—%");
+        tvOverallAccuracy.setText(totalQ > 0 ? String.format("Attempt Grade: %d%%", (correct * 100 / totalQ)) : "Attempt Grade: —%");
 
         List<PieEntry> ents = new ArrayList<>();
         ents.add(new PieEntry(correct, "Correct"));
