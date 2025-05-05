@@ -37,6 +37,7 @@ public class LessonStatsActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private String userId;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

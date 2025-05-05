@@ -37,7 +37,7 @@ public class LanguageSelectionActivity extends AppCompatActivity {
         searchBar = findViewById(R.id.search_bar);
 
         layoutJava.setOnClickListener(v -> selectLanguage("Java"));
-        layoutJavaScript.setOnClickListener(v -> selectLanguage("JavaScript"));
+        layoutJavaScript.setOnClickListener(v -> selectLanguage("Javascript"));
         layoutPython.setOnClickListener(v -> selectLanguage("Python"));
         layoutHtml.setOnClickListener(v -> selectLanguage("HTML"));
 
