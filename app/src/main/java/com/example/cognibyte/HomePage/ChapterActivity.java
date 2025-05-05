@@ -111,7 +111,7 @@ public class ChapterActivity extends AppCompatActivity {
                         return;
                     }
 
-                    selectedLanguage = lang;
+                    selectedLanguage = normalizeLanguage(lang);
                     skillLevel = skill;
                     userLanguages = langsList.isEmpty() ? Collections.singletonList(lang) : langsList;
 
@@ -137,8 +137,8 @@ public class ChapterActivity extends AppCompatActivity {
                 .document(userId)
                 .update("language", newLang)
                 .addOnSuccessListener(a -> {
-                    selectedLanguage = newLang;
-                    imgLanguageLogo.setImageResource(getLanguageIcon(newLang));
+                    selectedLanguage = normalizeLanguage(newLang);
+                    imgLanguageLogo.setImageResource(getLanguageIcon(selectedLanguage));
                     Toast.makeText(this, "Switched to " + newLang, Toast.LENGTH_SHORT).show();
                     updateChapterButtons();
                     loadChapterTitles();
@@ -157,6 +157,11 @@ public class ChapterActivity extends AppCompatActivity {
             case "html": return R.drawable.html_icon;
             default: return R.drawable.home;
         }
+    }
+
+    private String normalizeLanguage(String lang) {
+        if (lang.equalsIgnoreCase("javascript")) return "Javascript";
+        return lang;
     }
 
     private void updateChapterButtons() {

@@ -161,13 +161,7 @@ public class QuizActivity extends AppCompatActivity {
         for (String o : q.getOptions()) {
             RadioButton rb = new RadioButton(this);
             String cleaned = o.replaceAll("^[A-D][).]\\s*", "");
-
-            if (cleaned.matches("^[A-D][).]\\s*.*")) {
-                rb.setText(label + ". " + cleaned.replaceAll("^[A-D][).]\\s*", ""));
-            } else {
-                rb.setText(label + ". " + cleaned);
-            }
-
+            rb.setText(label + ". " + cleaned);
             rgOptions.addView(rb);
             label++;
         }
@@ -185,19 +179,25 @@ public class QuizActivity extends AppCompatActivity {
             return;
         }
 
-        String chosen = ((RadioButton) findViewById(sel)).getText().toString();
-        chosen = chosen.replaceAll("^[A-D][).]\\s*", "").trim();
-
+        String chosenText = ((RadioButton) findViewById(sel)).getText().toString();
+        String cleanedChosen = chosenText.replaceAll("^[A-Da-d][).]\\s*", "").trim();
         Question cur = quizQuestions.get(currentQuestionIndex);
-        String correctAnswer = cur.getAnswer().replaceAll("^[A-D][).]\\s*", "").trim();
+        String correctAnswer = cur.getAnswer().trim();
 
-        if (chosen.equalsIgnoreCase(correctAnswer)) {
+        if (correctAnswer.matches("^[A-Da-d]$") && cur.getOptions() != null) {
+            int index = correctAnswer.toUpperCase().charAt(0) - 'A';
+            if (index >= 0 && index < cur.getOptions().size()) {
+                correctAnswer = cur.getOptions().get(index).replaceAll("^[A-Da-d][).]\\s*", "").trim();
+            }
+        }
+
+        if (cleanedChosen.equalsIgnoreCase(correctAnswer)) {
             score++;
         } else {
             wrongQuestions.add(cur);
         }
 
-        tvCorrectAnswer.setText("Answer: " + cur.getAnswer());
+        tvCorrectAnswer.setText("Answer: " + correctAnswer);
         tvCorrectAnswer.setVisibility(View.VISIBLE);
         tvExplanation.setText(cur.getExplanation());
         tvExplanation.setVisibility(View.VISIBLE);
@@ -206,6 +206,8 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void showFinalScore() {
+        Log.d(TAG, "Showing final score: " + score + "/" + quizQuestions.size());
+
         tvQuestion.setText("Quiz complete! Score: " + score + "/" + quizQuestions.size());
         rgOptions.setVisibility(View.GONE);
         tvCorrectAnswer.setVisibility(View.GONE);
@@ -214,19 +216,33 @@ public class QuizActivity extends AppCompatActivity {
         if (!wrongQuestions.isEmpty()) {
             StringBuilder sb = new StringBuilder("Questions you got wrong:\n");
             for (Question w : wrongQuestions) {
+                String answerLabel = w.getAnswer().trim();
+                String answerText;
+                try {
+                    int index = "ABCD".indexOf(answerLabel.toUpperCase());
+                    if (index >= 0 && index < w.getOptions().size()) {
+                        answerText = w.getOptions().get(index);
+                    } else {
+                        answerText = answerLabel;
+                    }
+                } catch (Exception e) {
+                    answerText = answerLabel;
+                }
                 sb.append("- ").append(w.getQuestion())
-                        .append("\n  Correct answer: ").append(w.getAnswer())
+                        .append("\n  Correct answer: ").append(answerText)
                         .append("\n\n");
             }
             tvWrongQuestions.setText(sb.toString());
             tvWrongQuestions.setVisibility(View.VISIBLE);
+        } else {
+            tvWrongQuestions.setVisibility(View.GONE);
         }
 
         if (score <= 2) {
             tvRecommendation.setText("Great effort! To help improve your score, review the lesson recap and try again. You're getting closer every time!");
-        } else if (score == 3 || score == 4) {
+        } else if (score <= 4) {
             tvRecommendation.setText("Amazing work! You're definitely ready to move forward — keep up the momentum!");
-        } else if (score == 5) {
+        } else {
             tvRecommendation.setText("You are unstoppable! You're on your way to becoming a coding master!");
         }
 
@@ -238,7 +254,9 @@ public class QuizActivity extends AppCompatActivity {
         btnCompleteLesson.setVisibility(View.VISIBLE);
         btnReturnToLessons.setVisibility(View.VISIBLE);
 
-        QuizAttempt attempt = new QuizAttempt(quizQuestions, wrongQuestions, score);
+        QuizAttempt attempt = new QuizAttempt(new ArrayList<>(quizQuestions), new ArrayList<>(wrongQuestions), score);
+
+        Log.d(TAG, "Saving attempt with score: " + score);
         new UserQuizDatabaseHelper().saveQuizAttemptForQuiz(
                 chapterNumber,
                 "Chapter " + chapterNumber,
@@ -249,12 +267,12 @@ public class QuizActivity extends AppCompatActivity {
                 new UserQuizDatabaseHelper.SaveCallback() {
                     @Override
                     public void onSuccess() {
-                        Log.d(TAG, "Saved quiz attempt");
+                        Log.d(TAG, "Quiz attempt saved successfully.");
                     }
 
                     @Override
                     public void onFailure(String err) {
-                        Log.e(TAG, "Save failed: " + err);
+                        Log.e(TAG, "Failed to save quiz attempt: " + err);
                     }
                 }
         );
@@ -308,6 +326,8 @@ public class QuizActivity extends AppCompatActivity {
                                     Intent intent = new Intent(QuizActivity.this, LessonActivity.class);
                                     intent.putExtra("chapterNumber", nextChapter);
                                     intent.putExtra("chapterTitle", chapterTitle);
+                                    intent.putExtra("language", language);
+                                    intent.putExtra("skillLevel", skillLevel);
                                     startActivity(intent);
                                     finish();
                                 } else {
