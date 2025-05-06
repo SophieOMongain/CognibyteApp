@@ -181,29 +181,38 @@ public class QuizActivity extends AppCompatActivity {
 
         String chosenText = ((RadioButton) findViewById(sel)).getText().toString();
         String cleanedChosen = chosenText.replaceAll("^[A-Da-d][).]\\s*", "").trim();
+
         Question cur = quizQuestions.get(currentQuestionIndex);
         String correctAnswer = cur.getAnswer().trim();
 
         if (correctAnswer.matches("^[A-Da-d]$") && cur.getOptions() != null) {
             int index = correctAnswer.toUpperCase().charAt(0) - 'A';
             if (index >= 0 && index < cur.getOptions().size()) {
-                correctAnswer = cur.getOptions().get(index).replaceAll("^[A-Da-d][).]\\s*", "").trim();
+                correctAnswer = cur.getOptions().get(index);
             }
         }
 
-        if (cleanedChosen.equalsIgnoreCase(correctAnswer)) {
+        String cleanedCorrect = correctAnswer.replaceAll("^[A-Da-d][).]\\s*", "").trim();
+
+        Log.d("CHECK_ANSWER", "Chosen: " + cleanedChosen);
+        Log.d("CHECK_ANSWER", "Correct: " + cleanedCorrect);
+
+        if (cleanedChosen.equalsIgnoreCase(cleanedCorrect)) {
             score++;
+            Log.d("CHECK_ANSWER", "Correct! Score: " + score);
         } else {
             wrongQuestions.add(cur);
+            Log.d("CHECK_ANSWER", "Incorrect.");
         }
 
-        tvCorrectAnswer.setText("Answer: " + correctAnswer);
+        tvCorrectAnswer.setText("Answer: " + cleanedCorrect);
         tvCorrectAnswer.setVisibility(View.VISIBLE);
         tvExplanation.setText(cur.getExplanation());
         tvExplanation.setVisibility(View.VISIBLE);
         btnSubmit.setVisibility(View.GONE);
         btnNext.setVisibility(View.VISIBLE);
     }
+
 
     private void showFinalScore() {
         Log.d(TAG, "Showing final score: " + score + "/" + quizQuestions.size());

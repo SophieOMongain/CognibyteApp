@@ -37,7 +37,6 @@ public class LessonStatsActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private String userId;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +107,7 @@ public class LessonStatsActivity extends AppCompatActivity {
                         @Override public void onNothingSelected(AdapterView<?> p) {}
                         @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                             String lang = userLanguages.get(position);
-                            if (!lang.equals(selectedLanguage)) {
+                            if (!lang.equalsIgnoreCase(selectedLanguage)) {
                                 selectedLanguage = lang;
                                 loadOverallProgress();
                             }
@@ -124,10 +123,12 @@ public class LessonStatsActivity extends AppCompatActivity {
     }
 
     private void loadOverallProgress() {
+        String firestoreLanguage = normaliseLanguage(selectedLanguage);
+
         firestore.collection("UserProgress")
                 .document(userId)
                 .collection("Languages")
-                .document(selectedLanguage)
+                .document(firestoreLanguage)
                 .collection("Chapters")
                 .whereEqualTo("lessonNumber", 5)
                 .whereEqualTo("progress", true)
@@ -140,5 +141,10 @@ public class LessonStatsActivity extends AppCompatActivity {
                     tvOverallPct.setText(pct + "%");
                 })
                 .addOnFailureListener(e -> Log.e("StatsPage", "loadOverallProgress", e));
+    }
+
+    private String normaliseLanguage(String lang) {
+        if (lang.equalsIgnoreCase("javascript")) return "Javascript";
+        return lang;
     }
 }
